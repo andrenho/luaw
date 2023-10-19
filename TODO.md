@@ -1,0 +1,21 @@
+- [ ] Compile Lua 5.4 as static lib
+- [ ] Compile LuaJIT as static lib
+- [ ] Create LuaW object
+- [ ] Test environment
+- [ ] Load buffer / code from string / code from file
+- [ ] Manage execution errors
+- [ ] Stack dump (basic)
+- [ ] Manage stack: top, cut, ensure
+- [ ] Basic pushes / to
+- [ ] Push/To/Pop/Is/Check object
+  - [ ] For optional
+  - [ ] For vector
+  - [ ] For pair
+  - [ ] For tuple
+- [ ] Immediate operations (Do)
+- [ ] Get/set/has field + tree structure
+- [ ] To string object (for dump)
+- [ ] ForEach
+- [ ] Call
+- [ ] Metatables / UserData
+- [ ] Error handler

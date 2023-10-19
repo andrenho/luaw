@@ -1,0 +1,6 @@
+[submodule "lua"]
+	path = lua
+	url = https://github.com/lua/lua.git
+[submodule "luajit"]
+	path = luajit
+	url = https://luajit.org/git/luajit.git

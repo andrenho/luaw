@@ -1,3 +1,0 @@
-[submodule "luajit-cmake"]
-	path = luajit-cmake
-	url = https://github.com/zhaozg/luajit-cmake.git

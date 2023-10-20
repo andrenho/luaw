@@ -5,10 +5,20 @@
 #include <cstdint>
 #include <string>
 
-struct lua_State* L;
+#include <stdexcept>
+
+struct lua_State;
+
+class LuaException : public std::runtime_error {
+public:
+    LuaException(lua_State* L, std::string const& what) : std::runtime_error(what), L(L) {}
+    lua_State* L;
+};
 
 // file loading
 
-int luaw_dobuffer(lua_State* L, uint8_t* data, size_t sz, const char* name);
+void luaw_dobuffer(lua_State* L, uint8_t* data, size_t sz, std::string const& name="anonymous", int nresults=0);
+void luaw_dobuffer(lua_State* L, std::string const& buffer, std::string const& name="anonymous", int nresults=0);
+void luaw_dofile(lua_State* L, std::string const& filename, std::string const& name="anonymous", int nresults=0);
 
 #endif //LUAW_HH_

@@ -1,6 +1,5 @@
-- [ ] Compile Lua 5.4 as static lib
-- [ ] Compile LuaJIT as static lib
-- [ ] Create LuaW object
+- [x] Compile Lua 5.4 as static lib
+- [x] Compile LuaJIT as static lib
 - [ ] Test environment
 - [ ] Load buffer / code from string / code from file
 - [ ] Manage execution errors

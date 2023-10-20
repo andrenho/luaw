@@ -1,8 +1,8 @@
 - [x] Compile Lua 5.4 as static lib
 - [x] Compile LuaJIT as static lib
-- [ ] Test environment
-- [ ] Load buffer / code from string / code from file
-- [ ] Manage execution errors
+- [x] Test environment
+- [x] Load buffer / code from string / code from file
+- [x] Manage execution errors
 - [ ] Stack dump (basic)
 - [ ] Manage stack: top, cut, ensure
 - [ ] Basic pushes / to

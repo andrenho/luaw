@@ -21,4 +21,9 @@ void luaw_dobuffer(lua_State* L, uint8_t* data, size_t sz, std::string const& na
 void luaw_dobuffer(lua_State* L, std::string const& buffer, std::string const& name="anonymous", int nresults=0);
 void luaw_dofile(lua_State* L, std::string const& filename, std::string const& name="anonymous", int nresults=0);
 
+// dump
+
+std::string luaw_dump(lua_State* L, int index);
+std::string luaw_dump_stack(lua_State* L);
+
 #endif //LUAW_HH_

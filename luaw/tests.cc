@@ -3,6 +3,9 @@
 #include <cassert>
 #include <cstring>
 #include <cstdio>
+#include <string>
+
+using namespace std::string_literals;
 
 extern "C" {
 #if LUAW == JIT
@@ -43,4 +46,20 @@ int main()
     } catch (LuaException& e) {
         printf("expected error: %s\n", e.what());
     }
+
+    // luaw_dump
+    auto dump = [&](auto const& v) {
+        luaw_dobuffer(L, "return "s + v, "", 1); printf("%s\n", luaw_dump(L, -1).c_str()); lua_pop(L, 1);
+    };
+    dump("nil");
+    dump("42");
+    dump("42.8");
+    dump("true");
+    dump("false");
+    dump("function() end");
+    dump("{ a=4, 'b', { 'c', 'd' } }");
+
+    lua_pushlightuserdata(L, (void *) hello);
+    printf("%s\n", luaw_dump(L, -1).c_str());
+    lua_pop(L, 1);
 }

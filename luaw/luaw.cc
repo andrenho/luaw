@@ -13,36 +13,42 @@ extern "C" {
 #endif
 }
 
-void luaw_dobuffer(lua_State* L, uint8_t* data, size_t sz, std::string const& name, int nresults)
+void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults, std::string const& name)
 {
     int r = luaL_loadbuffer(L, (char const *) data, sz, name.c_str());
-    if (r == LUA_ERRSYNTAX)
-        throw LuaException(L, "Syntax error");
-    else if (r == LUA_ERRMEM)
+    if (r == LUA_ERRSYNTAX) {
+        std::string msg = "Syntax error: "s + lua_tostring(L, -1);
+        lua_pop(L, 1);
+        throw LuaException(L, msg);
+    } else if (r == LUA_ERRMEM) {
         throw LuaException(L, "Memory error");
+    }
 
     r = lua_pcall(L, 0, nresults, 0);
-    if (r == LUA_ERRRUN)
-        throw LuaException(L, "Runtime error: "s + lua_tostring(L, -1));
-    else if (r == LUA_ERRMEM)
+    if (r == LUA_ERRRUN) {
+        std::string msg = "Runtime error: "s + lua_tostring(L, -1);
+        lua_pop(L, 1);
+        throw LuaException(L, msg);
+    } else if (r == LUA_ERRMEM) {
         throw LuaException(L, "Runtime memory error");
-    else if (r == LUA_ERRERR)
+    } else if (r == LUA_ERRERR){
         throw LuaException(L, "Error running the error message handler");
+    }
 }
 
-void luaw_dobuffer(lua_State* L, std::string const& buffer, std::string const& name, int nresults)
+void luaw_do(lua_State* L, std::string const& buffer, int nresults, std::string const& name)
 {
-    luaw_dobuffer(L, (uint8_t *) buffer.data(), buffer.length(), name, nresults);
+    luaw_do(L, (uint8_t *) buffer.data(), buffer.length(), nresults, name);
 }
 
-void luaw_dofile(lua_State* L, std::string const& filename, std::string const& name, int nresults)
+void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::string const& name)
 {
     std::ifstream f(filename);
     if (!f.good())
         throw LuaException(L, "Could not open file '" + filename + "'");
     std::stringstream buffer;
     buffer << f.rdbuf();
-    luaw_dobuffer(L, buffer.str(), name, nresults);
+    luaw_do(L, buffer.str(), nresults, name);
 }
 
 std::string luaw_dump(lua_State* L, int index)
@@ -80,5 +86,19 @@ std::string luaw_dump(lua_State* L, int index)
 
 std::string luaw_dump_stack(lua_State* L)
 {
-    return "";  // TODO
+    std::stringstream ss;
+    int sz = lua_gettop(L);
+
+    for (int i = sz, j = -1; i > 0; --i, --j) {
+        ss << i << " / " << j << ": " << luaw_dump(L, j) << "\n";
+    }
+
+    return ss.str();
+}
+
+void luaw_ensure(lua_State* L, int expected_sz)
+{
+    if (lua_gettop(L) != expected_sz)
+        throw LuaException(L, "Stack size expected " + std::to_string(expected_sz) + ", but found to be " + std::to_string(
+                lua_gettop(L)));
 }

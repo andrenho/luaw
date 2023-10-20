@@ -3,8 +3,8 @@
 - [x] Test environment
 - [x] Load buffer / code from string / code from file
 - [x] Manage execution errors
-- [ ] Stack dump (basic)
-- [ ] Manage stack: top, cut, ensure
+- [x] Stack dump (basic)
+- [x] Manage stack: top, cut, ensure
 - [ ] Basic pushes / to
 - [ ] Push/To/Pop/Is/Check object
   - [ ] For optional

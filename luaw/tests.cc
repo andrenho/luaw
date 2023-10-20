@@ -20,36 +20,34 @@ int main()
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
-    lua_atpanic(L, [](lua_State *L) {
-        fprintf(stderr, "error: %s\n", lua_tostring(L, -1));
-        return 0;
-    });
+    // luaw_do
 
-    // luaw_dobuffer
-
-    const char* hello = "print('luaw_dobuffer const char* ok!')";
+    const char* hello = "print('luaw_do const char* ok!')";
     size_t sz = strlen(hello);
-    luaw_dobuffer(L, (uint8_t *) hello, sz, "hello", 0);
+    luaw_do(L, (uint8_t *) hello, sz, 0, "hello");
 
-    luaw_dobuffer(L, "print('luaw_dobuffer string ok!')");
+    luaw_do(L, "print('luaw_do string ok!')");
 
     try {
-        luaw_dobuffer(L, "print(");
+        luaw_do(L, "print(");
         assert(false);
     } catch (LuaException& e) {
         printf("expected error: %s\n", e.what());
     }
 
     try {
-        luaw_dobuffer(L, "print(a[1])");
+        luaw_do(L, "print(a[1])");
         assert(false);
     } catch (LuaException& e) {
         printf("expected error: %s\n", e.what());
     }
 
     // luaw_dump
+
+    printf("---------------------\n");
+
     auto dump = [&](auto const& v) {
-        luaw_dobuffer(L, "return "s + v, "", 1); printf("%s\n", luaw_dump(L, -1).c_str()); lua_pop(L, 1);
+        luaw_do(L, "return "s + v, 1); printf("%s\n", luaw_dump(L, -1).c_str()); lua_pop(L, 1);
     };
     dump("nil");
     dump("42");
@@ -62,4 +60,16 @@ int main()
     lua_pushlightuserdata(L, (void *) hello);
     printf("%s\n", luaw_dump(L, -1).c_str());
     lua_pop(L, 1);
+
+    // luaw_dump_stack
+
+    printf("---------------------\n");
+
+    lua_pushstring(L, "abc");
+    lua_pushinteger(L, 42);
+    printf("%s\n", luaw_dump_stack(L).c_str());
+    lua_pop(L, 2);
+
+    // lua types
+    luaw_push(L, true); assert(luaw_pop<bool>(L));
 }

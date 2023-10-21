@@ -67,7 +67,13 @@ int main()
     printf("%s\n", luaw_dump(L, -1).c_str());
     lua_pop(L, 1);
 
+    luaw_push(L, true);
+    printf("%s\n", luaw_dump(L, -1).c_str());
+    lua_pop(L, 1);
+
     // luaw_dump_stack
+
+    printf("---------------------\n");
 
     luaw_ensure(L);
 

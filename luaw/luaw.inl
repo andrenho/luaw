@@ -22,6 +22,7 @@ concept IntegerType = requires(T param)
 {
     requires std::is_integral_v<T>;
     requires !std::is_pointer_v<T>;
+    requires !std::same_as<T, bool>;
 };
 
 template<typename T>

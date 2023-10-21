@@ -8,13 +8,13 @@
 - [x] Basic pushes / to
 - [x] Lua init and basic scripts
 - [x] ForEach
-- [ ] Push/To/Pop/Is/Check object
+- [x] Push/To/Pop/Is/Check object
   - [x] For optional
   - [x] For vector
   - [x] For pair
   - [x] For tuple
   - [x] For map
-- [ ] TODO - false is being stored as integer
+- [x] TODO - false is being stored as integer
 - [ ] Get/set/has field + tree structure
 - [ ] Call
 - [ ] Metatables / UserData / Class table (see push/to/is)

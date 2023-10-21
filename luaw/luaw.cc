@@ -191,7 +191,7 @@ int luaw_len(lua_State* L, int index)
 #endif
 }
 
-template<> void luaw_push(lua_State* L, bool const& t) { lua_pushboolean(L, t); }
+template<> void luaw_push<bool>(lua_State* L, bool const& t) { lua_pushboolean(L, t); }
 template<> bool luaw_is<bool>(lua_State* L, int index) { return lua_isboolean(L, index); }
 template<> bool luaw_to(lua_State* L, int index) { return lua_toboolean(L, index); }
 

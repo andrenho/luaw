@@ -52,16 +52,6 @@ concept Iterable = requires(T t) {
 };
 
 
-template<class P>
-concept Pair = requires(P p) {
-    typename P::first_type;
-    typename P::second_type;
-    p.first;
-    p.second;
-    requires std::same_as<decltype(p.first), typename P::first_type>;
-    requires std::same_as<decltype(p.second), typename P::second_type>;
-};
-
 template<class T, std::size_t N>
 concept has_tuple_element =
 requires(T t) {
@@ -77,7 +67,6 @@ concept Tuple = !std::is_reference_v<T>
             std::tuple_size<T>,
             std::integral_constant<std::size_t, std::tuple_size_v<T>>
     >;
-    requires std::tuple_size_v<std::remove_cvref_t<T>> != 2;
 } && []<std::size_t... N>(std::index_sequence<N...>) {
     return (has_tuple_element<T, N> && ...);
 }(std::make_index_sequence<std::tuple_size_v<T>>());
@@ -165,34 +154,6 @@ template <Optional T> T luaw_to(lua_State* L, int index) {
         return T {};
     else
         return luaw_to<typename T::value_type>(L, index);
-}
-
-// pair
-
-template <Pair T> void luaw_push(lua_State* L, T const& t) {
-    lua_newtable(L);
-    luaw_push(L, t.first);
-    lua_rawseti(L, -2, 1);
-    luaw_push(L, t.second);
-    lua_rawseti(L, -2, 2);
-}
-template <Pair T> bool luaw_is(lua_State* L, int index) {
-    return lua_type(L, index) == LUA_TTABLE && luaw_len(L, index) == 2;
-}
-template <Pair T> T luaw_to(lua_State* L, int index) {
-    if (luaw_len(L, index) != 2)
-        luaL_error(L, "Expected array of size 2.");
-    luaL_checktype(L, index, LUA_TTABLE);
-
-    lua_rawgeti(L, index, 1);
-    typename T::first_type t = luaw_to<typename T::first_type>(L, -1);
-    lua_pop(L, 1);
-
-    lua_rawgeti(L, index, 2);
-    typename T::second_type u = luaw_to<typename T::second_type>(L, -1);
-    lua_pop(L, 1);
-
-    return { t, u };
 }
 
 // tuple

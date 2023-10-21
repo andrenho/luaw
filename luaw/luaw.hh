@@ -31,6 +31,7 @@ std::string luaw_dump_stack(lua_State* L);
 // stack size
 
 void luaw_ensure(lua_State* L, int expected_sz=0);
+int luaw_len(lua_State* L, int index);
 
 // stack management
 

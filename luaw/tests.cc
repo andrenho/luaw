@@ -87,4 +87,8 @@ int main()
 
     std::optional<int> o = 42;
     luaw_push(L, o); assert(luaw_pop<std::optional<int>>(L) == 42);
+
+    std::pair<int, std::string> p = { 42, "hello" };
+    luaw_push(L, p);
+    assert(luaw_pop<decltype(p)>(L) == p);
 }

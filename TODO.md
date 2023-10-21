@@ -8,7 +8,7 @@
 - [x] Basic pushes / to
 - [x] Lua init and basic scripts
 - [ ] Push/To/Pop/Is/Check object
-  - [ ] For optional
+  - [x] For optional
   - [x] For vector
   - [ ] For pair
   - [ ] For tuple
@@ -17,4 +17,4 @@
 - [ ] ForEach
 - [ ] Call
 - [ ] Metatables / UserData / Class table (see push/to/is)
-- [ ] Error handler
+- [ ] Document

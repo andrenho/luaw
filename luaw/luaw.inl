@@ -130,12 +130,7 @@ template <Iterable T> bool luaw_is(lua_State* L, int index) { return lua_istable
 template <Iterable T> T luaw_to(lua_State* L, int index) {
     luaL_checktype(L, index, LUA_TTABLE);
     T ts;
-    int sz;
-#if LUAW == JIT
-    sz = lua_objlen(L, index);
-#else
-    sz = luaL_len(L, index);
-#endif
+    int sz = luaw_len(L, index);
     for (int i = 1; i <= sz; ++i) {
         lua_rawgeti(L, index, i);
         ts.push_back(luaw_to<typename T::value_type>(L, -1));
@@ -158,6 +153,31 @@ template <Optional T> T luaw_to(lua_State* L, int index) {
         return T {};
     else
         return luaw_to<typename T::value_type>(L, index);
+}
+
+template <Pair T> void luaw_push(lua_State* L, T const& t) {
+    lua_newtable(L);
+    luaw_push(L, t.first);
+    lua_rawseti(L, -2, 1);
+    luaw_push(L, t.second);
+    lua_rawseti(L, -2, 2);
+}
+template <Pair T> bool luaw_is(lua_State* L, int index) {
+    return lua_type(L, index) == LUA_TTABLE && luaw_len(L, index) == 2;
+}
+template <Pair T> T luaw_to(lua_State* L, int index) {
+    if (luaw_len(L, index) != 2)
+        luaL_error(L, "Expected array of size 2.");
+
+    lua_rawgeti(L, index, 1);
+    typename T::first_type t = luaw_to<typename T::first_type>(L, -1);
+    lua_pop(L, 1);
+
+    lua_rawgeti(L, index, 2);
+    typename T::second_type u = luaw_to<typename T::second_type>(L, -1);
+    lua_pop(L, 1);
+
+    return { t, u };
 }
 
 #endif //LUA_INL_

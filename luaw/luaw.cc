@@ -149,6 +149,15 @@ void luaw_ensure(lua_State* L, int expected_sz)
                 lua_gettop(L)));
 }
 
+int luaw_len(lua_State* L, int index)
+{
+#if LUAW == JIT
+    return lua_objlen(L, index);
+#else
+    return luaL_len(L, index);
+#endif
+}
+
 template<> void luaw_push(lua_State* L, bool const& t) { lua_pushboolean(L, t); }
 template<> bool luaw_is<bool>(lua_State* L, int index) { return lua_isboolean(L, index); }
 template<> bool luaw_to(lua_State* L, int index) { return lua_toboolean(L, index); }

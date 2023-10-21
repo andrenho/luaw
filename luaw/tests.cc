@@ -4,6 +4,8 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <tuple>
+#include <map>
 
 using namespace std::string_literals;
 
@@ -68,12 +70,12 @@ int main()
 
     luaw_ensure(L);
 
-    printf("---------------------\n");
-
     lua_pushstring(L, "abc");
     lua_pushinteger(L, 42);
     printf("%s\n", luaw_dump_stack(L).c_str());
     lua_pop(L, 2);
+
+    printf("---------------------\n");
 
     // stack management
 
@@ -103,7 +105,15 @@ int main()
 
     std::tuple<bool, int, std::string> tp = { false, 48, "str" };
     luaw_push(L, tp);
+    printf("%s\n", luaw_dump(L, -1).c_str());
     assert(luaw_pop<decltype(tp)>(L) == tp);
+
+    std::map<std::string, int> mp { { "hello", 42 }, { "world", 18 } };
+    luaw_push(L, mp);
+    printf("%s\n", luaw_dump(L, -1).c_str());
+    assert(luaw_pop<decltype(mp)>(L) == mp);
+
+    printf("---------------------\n");
 
     // iterations
 

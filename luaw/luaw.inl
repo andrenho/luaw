@@ -9,6 +9,8 @@ extern "C" {
 #endif
 }
 
+#include <map>
+#include <unordered_map>
 #include <tuple>
 
 //
@@ -50,6 +52,12 @@ concept Iterable = requires(T t) {
     t.push_back(typename T::value_type{});
     requires !std::is_same_v<T, std::string>;
 };
+
+
+template<typename T>
+concept MapType =
+    std::same_as<T, std::map<typename T::key_type, typename T::mapped_type, typename T::key_compare, typename T::allocator_type>> ||
+    std::same_as<T, std::unordered_map<typename T::key_type, typename T::mapped_type, typename T::hasher, typename T::key_equal, typename T::allocator_type>>;
 
 
 template<class T, std::size_t N>
@@ -201,6 +209,46 @@ template <Tuple T> T luaw_to(lua_State* L, int index)
 {
     T t;
     tuple_element_set<T>(L, index, t);
+    return t;
+}
+
+//
+// map
+//
+
+template <MapType T> void luaw_push(lua_State* L, T const& t) {
+    lua_newtable(L);
+    for (auto const& kv: t) {
+        luaw_push(L, kv.first);
+        luaw_push(L, kv.second);
+        lua_rawset(L, -3);
+    }
+}
+
+template <MapType T> bool luaw_is(lua_State* L, int index) {
+    bool is = lua_type(L, index) == LUA_TTABLE;
+    if (is) {
+        lua_pushvalue(L, index);
+        lua_pushnil(L);
+        while (lua_next(L, -2) != 0) {
+            if (!luaw_is<typename T::key_type>(L, -2))
+                is = false;
+            if (!luaw_is<typename T::value_type>(L, -1))
+                is = false;
+            lua_pop(L, 1);
+        }
+        lua_pop(L, 1);
+    }
+    return is;
+}
+
+template <MapType T> T luaw_to(lua_State* L, int index) {
+    T t;
+    luaw_pairs(L, index, [&t](lua_State* L) {
+        auto key = luaw_to<typename T::key_type>(L, -2);
+        auto value = luaw_to<typename T::mapped_type>(L, -1);
+        t[key] = value;
+    });
     return t;
 }
 

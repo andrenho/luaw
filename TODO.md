@@ -10,8 +10,9 @@
 - [ ] Push/To/Pop/Is/Check object
   - [x] For optional
   - [x] For vector
-  - [ ] For pair
+  - [x] For pair
   - [ ] For tuple
+  - [ ] For map
 - [ ] Get/set/has field + tree structure
 - [ ] To string object (for dump)
 - [ ] ForEach

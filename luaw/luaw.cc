@@ -95,7 +95,34 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::s
     luaw_do(L, buffer.str(), nresults, name);
 }
 
-std::string luaw_dump(lua_State* L, int index)
+static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, size_t current_depth)
+{
+    if (current_depth > max_depth)
+        return "...";
+
+    // TODO - also what about metamethods?
+    bool found = false;
+    std::stringstream ss;
+
+    luaw_ipairs(L, index, [&](lua_State* L, int i) {
+        ss << luaw_dump(L, -1, max_depth, current_depth) << ", ";
+        found = true;
+    });
+
+    luaw_spairs(L, index, [&](lua_State* L, std::string key) {
+        ss << key << "=" << luaw_dump(L, -1, max_depth, current_depth) << ", ";
+        found = true;
+    });
+
+    if (found) {
+        std::string s = ss.str();
+        return "{ " + s.substr(0, s.length() - 2) + " }";
+    } else {
+        return "{}";
+    }
+}
+
+std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_depth)
 {
     switch (lua_type(L, index)) {
         case LUA_TNIL:
@@ -113,7 +140,7 @@ std::string luaw_dump(lua_State* L, int index)
         case LUA_TSTRING:
             return "\""s + lua_tostring(L, index) + "\"";
         case LUA_TTABLE:
-            return "{}";  // TODO - also what about metamethods?
+            return luaw_dump_table(L, index, max_depth, current_depth + 1);
         case LUA_TFUNCTION:
             return "[&]";
         case LUA_TUSERDATA:
@@ -130,16 +157,21 @@ std::string luaw_dump(lua_State* L, int index)
     }
 }
 
-std::string luaw_dump_stack(lua_State* L)
+std::string luaw_dump_stack(lua_State* L, size_t max_depth)
 {
     std::stringstream ss;
     int sz = lua_gettop(L);
 
     for (int i = sz, j = -1; i > 0; --i, --j) {
-        ss << i << " / " << j << ": " << luaw_dump(L, j) << "\n";
+        ss << i << " / " << j << ": " << luaw_dump(L, j, max_depth) << "\n";
     }
 
     return ss.str();
+}
+
+void luaw_print_stack(lua_State* L, size_t max_depth)
+{
+    printf("%s\n", luaw_dump_stack(L, max_depth).c_str());
 }
 
 void luaw_ensure(lua_State* L, int expected_sz)

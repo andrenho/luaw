@@ -19,6 +19,8 @@ int main()
 {
     lua_State* L = luaw_newstate();
 
+    luaw_ensure(L);
+
     // luaw_do
 
     const char* hello = "print('luaw_do const char* ok!')";
@@ -31,17 +33,19 @@ int main()
         luaw_do(L, "print(");
         assert(false);
     } catch (LuaException& e) {
-        printf("expected error: %s\n", e.what());
+        // printf("expected error: %s\n", e.what());
     }
 
     try {
         luaw_do(L, "print(a[1])");
         assert(false);
     } catch (LuaException& e) {
-        printf("expected error: %s\n", e.what());
+        // printf("expected error: %s\n", e.what());
     }
 
     // luaw_dump
+
+    luaw_ensure(L);
 
     printf("---------------------\n");
 
@@ -62,6 +66,8 @@ int main()
 
     // luaw_dump_stack
 
+    luaw_ensure(L);
+
     printf("---------------------\n");
 
     lua_pushstring(L, "abc");
@@ -69,7 +75,10 @@ int main()
     printf("%s\n", luaw_dump_stack(L).c_str());
     lua_pop(L, 2);
 
-    // lua types
+    // stack management
+
+    luaw_ensure(L);
+
     luaw_push(L, true); assert(luaw_pop<bool>(L));
     luaw_push(L, 42); assert(luaw_pop<int>(L) == 42);
     luaw_push(L, 42.8); assert(luaw_pop<double>(L) == 42.8);
@@ -91,4 +100,29 @@ int main()
     std::pair<int, std::string> p = { 42, "hello" };
     luaw_push(L, p);
     assert(luaw_pop<decltype(p)>(L) == p);
+
+    /*
+    std::tuple<bool, int, std::string> tp = { false, 48, "str" };
+    luaw_push(L, tp);
+    assert(luaw_is<decltype(tp)>(L, -1));
+     */
+
+    // iterations
+
+    luaw_ensure(L);
+
+    luaw_do(L, "return { 'd', 'e', a=1, b=2, c=3, [8]='f' }", 1);
+    luaw_ipairs(L, -1, [](lua_State* L, int i) {
+        printf("%d: %s   ", i, lua_tostring(L, -1));
+    });
+    printf("\n");
+    luaw_spairs(L, -1, [](lua_State* L, std::string const& key) {
+        printf("%s: %s   ", key.c_str(), luaw_dump(L, -1).c_str());
+    });
+    printf("\n");
+    luaw_pairs(L, -1, [](lua_State* L) {
+        printf("%s: %s   ", luaw_dump(L, -2).c_str(), luaw_dump(L, -1).c_str());
+    });
+    printf("\n");
+    lua_pop(L, 1);
 }

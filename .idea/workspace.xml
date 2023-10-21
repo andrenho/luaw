@@ -25,6 +25,7 @@
       <change beforePath="$PROJECT_DIR$/luaw/luaw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/luaw/luaw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/luaw/luaw.inl" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.inl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/luaw/tests.cc" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/tests.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +112,7 @@
       <recent name="$PROJECT_DIR$/luaw" />
     </key>
   </component>
-  <component name="RunManager" selected="Makefile Application.check">
+  <component name="RunManager" selected="Makefile Application.check-54">
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="luaw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -142,7 +143,14 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration name="tests.cc" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="luaw" TARGET_NAME="tests.cc" CONFIG_NAME="tests.cc">
+      <option name="sourceFile" value="luaw/tests.cc" />
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
+      <item itemvalue="C/C++ File.tests.cc" />
       <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.check" />
       <item itemvalue="Makefile Application.check-54" />
@@ -150,6 +158,11 @@
       <item itemvalue="Makefile Application.libluaw-54.a" />
       <item itemvalue="Makefile Application.libluaw-jit.a" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="C/C++ File.tests.cc" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -162,7 +175,7 @@
       <workItem from="1697718037870" duration="9792000" />
       <workItem from="1697812032686" duration="9846000" />
       <workItem from="1697837495549" duration="59000" />
-      <workItem from="1697837564044" duration="6077000" />
+      <workItem from="1697837564044" duration="12359000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />
@@ -228,7 +241,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697849380092</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary=".">
+      <option name="closed" value="true" />
+      <created>1697850025683</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1697850025683</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -237,6 +258,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="." />
     <option name="LAST_COMMIT_MESSAGE" value="." />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="CLionNativeAppRunConfigurationType">
+        <watch expression="luaw_dump_stack(L)" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

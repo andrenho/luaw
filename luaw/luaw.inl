@@ -9,6 +9,8 @@ extern "C" {
 #endif
 }
 
+#include <tuple>
+
 //
 // CONCEPTS
 //
@@ -46,6 +48,7 @@ concept Iterable = requires(T t) {
     begin(t);
     end(t);
     t.push_back(typename T::value_type{});
+    requires !std::is_same_v<T, std::string>;
 };
 
 
@@ -74,6 +77,7 @@ concept Tuple = !std::is_reference_v<T>
             std::tuple_size<T>,
             std::integral_constant<std::size_t, std::tuple_size_v<T>>
     >;
+    requires std::tuple_size_v<std::remove_cvref_t<T>> != 2;
 } && []<std::size_t... N>(std::index_sequence<N...>) {
     return (has_tuple_element<T, N> && ...);
 }(std::make_index_sequence<std::tuple_size_v<T>>());
@@ -101,6 +105,8 @@ template <typename T> T luaw_pop(lua_State* L)
 // STACK MANAGEMENT (specialization)
 //
 
+// integer
+
 template <IntegerType T> void luaw_push(lua_State* L, T const& t) { lua_pushinteger(L, t); }
 template <IntegerType T> bool luaw_is(lua_State* L, int index) {
     if (!lua_isnumber(L, index))
@@ -110,6 +116,8 @@ template <IntegerType T> bool luaw_is(lua_State* L, int index) {
 }
 template <IntegerType T> T luaw_to(lua_State* L, int index) { return (T) lua_tointeger(L, index); }
 
+// number
+
 template <FloatingType T> void luaw_push(lua_State* L, T const& t) { lua_pushnumber(L, t); }
 template <FloatingType T> bool luaw_is(lua_State* L, int index) { return lua_isnumber(L, index); }
 template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
@@ -117,6 +125,8 @@ template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_to
 template <PointerType T> void luaw_push(lua_State* L, T t) { lua_pushlightuserdata(L, t); }
 template <PointerType T> bool luaw_is(lua_State* L, int index) { return lua_isuserdata(L, index); }
 template <PointerType T> T luaw_to(lua_State* L, int index) { return (T) lua_touserdata(L, index); }
+
+// table (vector, set...)
 
 template <Iterable T> void luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
@@ -139,6 +149,8 @@ template <Iterable T> T luaw_to(lua_State* L, int index) {
     return ts;
 }
 
+// optional
+
 template <Optional T> void luaw_push(lua_State* L, T const& t) {
     if (t.has_value())
         luaw_push<typename T::value_type>(L, *t);
@@ -155,6 +167,8 @@ template <Optional T> T luaw_to(lua_State* L, int index) {
         return luaw_to<typename T::value_type>(L, index);
 }
 
+// pair
+
 template <Pair T> void luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
     luaw_push(L, t.first);
@@ -168,6 +182,7 @@ template <Pair T> bool luaw_is(lua_State* L, int index) {
 template <Pair T> T luaw_to(lua_State* L, int index) {
     if (luaw_len(L, index) != 2)
         luaL_error(L, "Expected array of size 2.");
+    luaL_checktype(L, index, LUA_TTABLE);
 
     lua_rawgeti(L, index, 1);
     typename T::first_type t = luaw_to<typename T::first_type>(L, -1);
@@ -178,6 +193,86 @@ template <Pair T> T luaw_to(lua_State* L, int index) {
     lua_pop(L, 1);
 
     return { t, u };
+}
+
+// tuple
+
+template <Tuple T> void luaw_push(lua_State* L, T const& t) {
+    lua_newtable(L);
+    int i = 1;
+    std::apply([L, &i](auto&&... args) { ((luaw_push(L, args), lua_rawseti(L, -2, i++)), ...); }, t);
+}
+
+#include <iostream>
+template <typename T, std::size_t I = 0>
+static bool tuple_element_is(lua_State* L)
+{
+    if constexpr (I < std::tuple_size_v<T>) {
+        lua_rawgeti(L, -1, I + 1);
+        bool is = luaw_is<std::tuple_element_t<I, T>>(L, -1);
+        lua_pop(L, 1);
+        if (!is)
+            return false;
+        else
+            return tuple_element_is<T, I + 1>(L);
+    }
+    return true;
+}
+
+template <Tuple T> bool luaw_is(lua_State* L, int index) {
+    bool is = lua_type(L, index) == LUA_TTABLE && luaw_len(L, index) == std::tuple_size_v<T>;
+    if (is)
+        return tuple_element_is<T>(L);
+    else
+        return false;
+}
+
+//
+// ITERATION
+//
+
+template <typename F> requires std::invocable<F&, lua_State*, int>
+void luaw_ipairs(lua_State* L, int index, F fn)
+{
+    int sz = luaw_len(L, index);
+    lua_pushvalue(L, index);   // clone the table
+
+    for (int i = 1; i <= sz; ++i) {
+        lua_rawgeti(L, -1, i);
+        fn(L, i);
+        lua_pop(L, 1);
+    }
+
+    lua_pop(L, 1);
+}
+
+template <typename F> requires std::invocable<F&, lua_State*, std::string>
+void luaw_spairs(lua_State* L, int index, F fn)
+{
+    lua_pushvalue(L, index);   // clone the table
+
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        if (lua_type(L, -2) == LUA_TSTRING)
+            fn(L, luaw_to<std::string>(L, -2));
+        lua_pop(L, 1);
+    }
+
+    lua_pop(L, 1);
+}
+
+template <typename F> requires std::invocable<F&, lua_State*>
+void luaw_pairs(lua_State* L, int index, F fn)
+{
+    lua_pushvalue(L, index);   // clone the table
+
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        fn(L);
+        lua_pop(L, 1);
+    }
+
+    lua_pop(L, 1);
 }
 
 #endif //LUA_INL_

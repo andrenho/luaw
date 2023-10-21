@@ -25,8 +25,9 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults=0, std:
 
 // dump
 
-std::string luaw_dump(lua_State* L, int index);
-std::string luaw_dump_stack(lua_State* L);
+std::string luaw_dump(lua_State* L, int index, size_t max_depth=3, size_t current_depth=0);
+std::string luaw_dump_stack(lua_State* L, size_t max_depth=3);
+void luaw_print_stack(lua_State* L, size_t max_depth=3);
 
 // stack size
 
@@ -41,6 +42,12 @@ template <typename T> bool luaw_is(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index, T const& default_);
 template <typename T> T luaw_pop(lua_State* L);
+
+// iteration
+
+template <typename F> requires std::invocable<F&, lua_State*, int>         void luaw_ipairs(lua_State* L, int index, F fn);
+template <typename F> requires std::invocable<F&, lua_State*, std::string> void luaw_spairs(lua_State* L, int index, F fn);
+template <typename F> requires std::invocable<F&, lua_State*>              void luaw_pairs(lua_State* L, int index, F fn);
 
 #include "luaw.inl"
 

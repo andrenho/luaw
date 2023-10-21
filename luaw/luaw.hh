@@ -49,6 +49,14 @@ template <typename F> requires std::invocable<F&, lua_State*, int>         void 
 template <typename F> requires std::invocable<F&, lua_State*, std::string> void luaw_spairs(lua_State* L, int index, F fn);
 template <typename F> requires std::invocable<F&, lua_State*>              void luaw_pairs(lua_State* L, int index, F fn);
 
+// fields
+
+void luaw_getfield(lua_State* L, int index, std::string const& field);
+bool luaw_isfield(lua_State* L, int index, std::string const& field);
+bool luaw_setfield(lua_State* L, int index, std::string const& field);
+
+template <typename T> T luaw_getfield(lua_State* L, int index, std::string const& field);
+
 #include "luaw.inl"
 
 #endif //LUAW_HH_

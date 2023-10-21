@@ -121,8 +121,11 @@ int main()
     printf("%s\n", luaw_dump(L, -1).c_str());
     assert(luaw_pop<decltype(mp)>(L) == mp);
 
-    std::variant<int, std::string> vv { 42 };
+    /*
+    std::variant<int, double> vv { 42 };
     luaw_push(L, vv);
+    assert(luaw_pop<decltype(vv)>(L) == vv);
+     */
 
     printf("---------------------\n");
 
@@ -144,4 +147,22 @@ int main()
     });
     printf("\n");
     lua_pop(L, 1);
+
+    printf("---------------------\n");
+
+    // fields
+
+    luaw_ensure(L);
+
+    luaw_do(L, "return { a = { b = { c = 84 } } }", 1);
+    assert(luaw_isfield(L, -1, "a.b"));
+    assert(luaw_isfield(L, -1, "a.b.c"));
+    assert(luaw_isfield(L, -1, "a.b.c.d") == false);
+
+    luaw_getfield(L, -1, "a.b.c");
+    assert(luaw_pop<int>(L) == 84);
+    assert(luaw_getfield<int>(L, -1, "a.b.c") == 84);
+    lua_pop(L, 1);
+
+    luaw_ensure(L);
 }

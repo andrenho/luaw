@@ -69,8 +69,7 @@ requires(T t) {
 };
 
 template<class T>
-concept Tuple = !std::is_reference_v<T>
-                     && requires(T t) {
+concept Tuple = !std::is_reference_v<T> && requires(T t) {
     typename std::tuple_size<T>::type;
     requires std::derived_from<
             std::tuple_size<T>,
@@ -213,9 +212,7 @@ template <Tuple T> T luaw_to(lua_State* L, int index)
     return t;
 }
 
-//
 // map
-//
 
 template <MapType T> void luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
@@ -252,6 +249,34 @@ template <MapType T> T luaw_to(lua_State* L, int index) {
     });
     return t;
 }
+
+/*
+// variant
+
+template <typename... Types>
+void luaw_push(lua_State* L, std::variant<Types...> const& t) {
+    std::visit([&](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        luaw_push<T>(L, arg);
+    }, t);
+}
+
+template <typename T, typename... Types>
+concept Variant = requires(T t) {
+    std::is_same_v<T, std::variant<Types...>>;
+};
+
+template <Variant T>
+bool luaw_is(lua_State* L, int index) {
+    return false;
+}
+
+template <typename T, typename... Types>
+std::variant<T, Types...> lua_to(lua_State* L, int index) {
+    std::variant<T, Types...> t;
+    return t;
+}
+ */
 
 //
 // ITERATION
@@ -299,6 +324,18 @@ void luaw_pairs(lua_State* L, int index, F fn)
     }
 
     lua_pop(L, 1);
+}
+
+//
+// FIELDS
+//
+
+template <typename T> T luaw_getfield(lua_State* L, int index, std::string const& field)
+{
+    luaw_getfield(L, index, field);
+    T t = luaw_to<T>(L, -1);
+    lua_pop(L, 1);
+    return t;
 }
 
 #endif //LUA_INL_

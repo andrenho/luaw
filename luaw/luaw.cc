@@ -206,3 +206,44 @@ template<> std::string luaw_to<std::string>(lua_State* L, int index) { return lu
 template<> void luaw_push(lua_State* L, const char* t) { lua_pushstring(L, t); }
 template<> bool luaw_is<const char*>(lua_State* L, int index) { return lua_isstring(L, index); }
 template<> const char* luaw_to<const char*>(lua_State* L, int index) { return lua_tostring(L, index); }
+
+void luaw_getfield(lua_State* L, int index, std::string const& field)
+{
+    std::istringstream iss(field);
+    std::string property;
+
+    int top = lua_gettop(L);
+    int levels = 0;
+
+    while (std::getline(iss, property, '.')) {
+        lua_getfield(L, index, property.c_str());
+        int type = lua_type(L, -1);
+        if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
+            lua_settop(L, top);
+            throw LuaException(L, "Property " + field + " not found.");
+        }
+        ++levels;
+    }
+
+    lua_insert(L, levels - 1);
+    lua_pop(L, levels - 1);
+}
+
+bool luaw_isfield(lua_State* L, int index, std::string const& field)
+{
+    std::istringstream iss(field);
+    std::string property;
+
+    int top = lua_gettop(L);
+    while (std::getline(iss, property, '.')) {
+        lua_getfield(L, index, property.c_str());
+        int type = lua_type(L, -1);
+        if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
+            lua_settop(L, top);
+            return false;
+        }
+    }
+
+    lua_settop(L, top);
+    return true;
+}

@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 using namespace std::string_literals;
 
@@ -11,6 +12,49 @@ extern "C" {
 #else
 # include "lua.hpp"
 #endif
+}
+
+static const char* strict_lua = R"(
+local getinfo, error, rawset, rawget = debug.getinfo, error, rawset, rawget
+
+local mt = getmetatable(_G)
+if mt == nil then
+    mt = {}
+    setmetatable(_G, mt)
+end
+
+mt.__declared = {}
+
+local function what ()
+    local d = getinfo(3, "S")
+    return d and d.what or "C"
+end
+
+mt.__newindex = function (t, n, v)
+    if not mt.__declared[n] then
+        local w = what()
+        if w ~= "main" and w ~= "C" then
+            error("assign to undeclared variable '"..n.."'", 2)
+        end
+        mt.__declared[n] = true
+    end
+    rawset(t, n, v)
+end
+
+mt.__index = function (t, n)
+    if not mt.__declared[n] and what() ~= "C" then
+        error("variable '"..n.."' is not declared", 2)
+    end
+    return rawget(t, n)
+end
+)";
+
+lua_State* luaw_newstate()
+{
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+    luaw_do(L, strict_lua, 0, "strict.lua");
+    return L;
 }
 
 void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults, std::string const& name)
@@ -81,6 +125,8 @@ std::string luaw_dump(lua_State* L, int index)
             snprintf(buf, sizeof buf, "(*%p)", lua_touserdata(L, index));
             return buf;
         }
+        default:
+            throw LuaException(L, "Invalid lua type");
     }
 }
 
@@ -102,3 +148,19 @@ void luaw_ensure(lua_State* L, int expected_sz)
         throw LuaException(L, "Stack size expected " + std::to_string(expected_sz) + ", but found to be " + std::to_string(
                 lua_gettop(L)));
 }
+
+template<> void luaw_push(lua_State* L, bool const& t) { lua_pushboolean(L, t); }
+template<> bool luaw_is<bool>(lua_State* L, int index) { return lua_isboolean(L, index); }
+template<> bool luaw_to(lua_State* L, int index) { return lua_toboolean(L, index); }
+
+template<nullptr_t> void luaw_push(lua_State* L, nullptr_t const& t=nullptr) { lua_pushnil(L); }
+template<> bool luaw_is<nullptr_t>(lua_State* L, int index) { return lua_isnil(L, index); }
+template<> nullptr_t luaw_to([[maybe_unused]] lua_State* L, [[maybe_unused]] int index) { return nullptr; }
+
+template<> void luaw_push(lua_State* L, std::string const& t) { lua_pushstring(L, t.c_str()); }
+template<> bool luaw_is<std::string>(lua_State* L, int index) { return lua_isstring(L, index); }
+template<> std::string luaw_to<std::string>(lua_State* L, int index) { return lua_tostring(L, index); }
+
+template<> void luaw_push(lua_State* L, const char* t) { lua_pushstring(L, t); }
+template<> bool luaw_is<const char*>(lua_State* L, int index) { return lua_isstring(L, index); }
+template<> const char* luaw_to<const char*>(lua_State* L, int index) { return lua_tostring(L, index); }

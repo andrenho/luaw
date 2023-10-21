@@ -5,16 +5,16 @@
 - [x] Manage execution errors
 - [x] Stack dump (basic)
 - [x] Manage stack: top, cut, ensure
-- [ ] Basic pushes / to
+- [x] Basic pushes / to
+- [x] Lua init and basic scripts
 - [ ] Push/To/Pop/Is/Check object
   - [ ] For optional
   - [ ] For vector
   - [ ] For pair
   - [ ] For tuple
-- [ ] Immediate operations (Do)
 - [ ] Get/set/has field + tree structure
 - [ ] To string object (for dump)
 - [ ] ForEach
 - [ ] Call
-- [ ] Metatables / UserData
+- [ ] Metatables / UserData / Class table (see push/to/is)
 - [ ] Error handler

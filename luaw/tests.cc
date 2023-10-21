@@ -17,8 +17,7 @@ extern "C" {
 
 int main()
 {
-    lua_State* L = luaL_newstate();
-    luaL_openlibs(L);
+    lua_State* L = luaw_newstate();
 
     // luaw_do
 
@@ -72,4 +71,17 @@ int main()
 
     // lua types
     luaw_push(L, true); assert(luaw_pop<bool>(L));
+    luaw_push(L, 42); assert(luaw_pop<int>(L) == 42);
+    luaw_push(L, 42.8); assert(luaw_pop<double>(L) == 42.8);
+    luaw_push(L, "hello"s); assert(luaw_pop<std::string>(L) == "hello");
+    luaw_push(L, "hello"); assert(std::string(luaw_pop<const char*>(L)) == "hello");
+
+    int* x = (int *) malloc(sizeof(int));
+    *x = 40;
+    luaw_push(L, x); assert(*luaw_pop<int*>(L) == 40);
+    free(x);
+
+    std::vector<int> v { 10, 20, 30 };
+    luaw_push(L, v);
+    assert(luaw_pop<std::vector<int>>(L) == v);
 }

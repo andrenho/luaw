@@ -53,7 +53,7 @@ template <typename F> requires std::invocable<F&, lua_State*>              void 
 
 void luaw_getfield(lua_State* L, int index, std::string const& field);
 bool luaw_isfield(lua_State* L, int index, std::string const& field);
-bool luaw_setfield(lua_State* L, int index, std::string const& field);
+void luaw_setfield(lua_State* L, int index, std::string const& field);
 
 template <typename T> T luaw_getfield(lua_State* L, int index, std::string const& field);
 

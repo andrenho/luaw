@@ -162,6 +162,10 @@ int main()
     luaw_getfield(L, -1, "a.b.c");
     assert(luaw_pop<int>(L) == 84);
     assert(luaw_getfield<int>(L, -1, "a.b.c") == 84);
+
+    luaw_push(L, 65);
+    luaw_setfield(L, -1, "a.b.d");
+
     lua_pop(L, 1);
 
     luaw_ensure(L);

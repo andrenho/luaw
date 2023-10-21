@@ -220,7 +220,7 @@ void luaw_getfield(lua_State* L, int index, std::string const& field)
         int type = lua_type(L, -1);
         if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
             lua_settop(L, top);
-            throw LuaException(L, "Property " + field + " not found.");
+            throw LuaException(L, "Field " + field + " not found.");
         }
         ++levels;
     }
@@ -246,4 +246,32 @@ bool luaw_isfield(lua_State* L, int index, std::string const& field)
 
     lua_settop(L, top);
     return true;
+}
+
+void luaw_setfield(lua_State* L, int index, std::string const& field)
+{
+    std::istringstream iss(field);
+    std::string property;
+    std::vector<std::string> ps;
+
+    while (std::getline(iss, property, '.'))
+        ps.push_back(property);
+
+    int top = lua_gettop(L);
+    int levels = 0;
+
+    for (size_t i = 0; i < ps.size() - 1; ++i) {
+        lua_getfield(L, index, ps.at(i).c_str());
+        int type = lua_type(L, -1);
+        if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
+            lua_settop(L, top);
+            throw LuaException(L, "Field " + field + " not found.");
+        }
+        ++levels;
+    }
+
+    lua_pushvalue(L, levels - 1);   // copy value
+    lua_setfield(L, -levels, field.c_str());
+
+    lua_settop(L, top);
 }

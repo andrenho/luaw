@@ -226,37 +226,21 @@ template <Tuple T> bool luaw_is(lua_State* L, int index) {
         return false;
 }
 
-template <size_t I, typename T>
-std::tuple<T> luaw_create_tuple_helper([[maybe_unused]] lua_State* L, [[maybe_unused]] int index)  // base case
+template <typename T, std::size_t I = 0>
+static void tuple_element_set(lua_State* L, int index, T& t)
 {
-    lua_rawgeti(L, index, I);
-    auto element = luaw_pop<T>(L);
-    return { element };
+    if constexpr (I < std::tuple_size_v<T>) {
+        lua_rawgeti(L, index, I + 1);
+        std::get<I>(t) = luaw_pop<std::tuple_element_t<I, T>>(L);
+        tuple_element_set<T, I + 1>(L, index, t);
+    }
 }
-
-template <size_t I, typename T, typename U, typename... Rest>
-std::tuple<T, U, Rest...> luaw_create_tuple_helper(lua_State* L, int index)  // recursive case
-{
-    lua_rawgeti(L, index, I);
-    auto element = luaw_pop<T>(L);
-    auto rest = luaw_create_tuple_helper<I + 1, U, Rest...>(L, index);
-    return std::tuple_cat(std::make_tuple(element), rest);
-}
-
-/*
-template <typename... Types>
-std::tuple<Types...> luaw_create_tuple(lua_State* L, int index)
-{
-    return luaw_create_tuple_helper<1, Types...>(L, index);
-}
- */
 
 template <Tuple T> T luaw_to(lua_State* L, int index)
 {
-    // ???
-    auto t = luaw_create_tuple_helper<1, bool, int, std::string>(L, index);
+    T t;
+    tuple_element_set<T>(L, index, t);
     return t;
-    // return luaw_create_tuple<bool, int, std::string>(L, index);
 }
 
 //

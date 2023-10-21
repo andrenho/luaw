@@ -11,7 +11,7 @@
   - [x] For optional
   - [x] For vector
   - [x] For pair
-  - [ ] For tuple
+  - [x] For tuple
   - [ ] For map
 - [ ] Get/set/has field + tree structure
 - [ ] To string object (for dump)

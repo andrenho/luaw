@@ -120,6 +120,7 @@ static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, si
     } else {
         return "{}";
     }
+
 }
 
 std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_depth)

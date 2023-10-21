@@ -1,6 +1,8 @@
 OBJ := luaw/luaw.o
 CPPFLAGS := -I. -std=c++20 -Wall -Wextra
 
+CXX = g++
+
 ifdef DEBUG
 	CPPFLAGS += -Og -ggdb
 else

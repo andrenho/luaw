@@ -101,11 +101,9 @@ int main()
     luaw_push(L, p);
     assert(luaw_pop<decltype(p)>(L) == p);
 
-    /*
     std::tuple<bool, int, std::string> tp = { false, 48, "str" };
     luaw_push(L, tp);
-    assert(luaw_is<decltype(tp)>(L, -1));
-     */
+    assert(luaw_pop<decltype(tp)>(L) == tp);
 
     // iterations
 

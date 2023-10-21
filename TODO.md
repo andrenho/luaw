@@ -14,6 +14,7 @@
   - [x] For pair
   - [x] For tuple
   - [x] For map
+  - [ ] For variant
 - [x] TODO - false is being stored as integer
 - [ ] Get/set/has field + tree structure
 - [ ] Call

@@ -7,6 +7,7 @@
 #include <tuple>
 #include <map>
 #include <set>
+#include <variant>
 
 using namespace std::string_literals;
 
@@ -119,6 +120,9 @@ int main()
     luaw_push(L, mp);
     printf("%s\n", luaw_dump(L, -1).c_str());
     assert(luaw_pop<decltype(mp)>(L) == mp);
+
+    std::variant<int, std::string> vv { 42 };
+    luaw_push(L, vv);
 
     printf("---------------------\n");
 

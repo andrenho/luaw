@@ -33,12 +33,21 @@ concept PointerType = requires(T param)
     requires !std::is_same_v<T, const char*>;
 };
 
+template< typename T >
+concept Optional = requires( T t )
+{
+    typename T::value_type;
+    std::same_as< T, std::optional< typename T::value_type > >;
+    t.value();
+};
+
 template <typename T>
 concept Iterable = requires(T t) {
     begin(t);
     end(t);
     t.push_back(typename T::value_type{});
 };
+
 
 template<class P>
 concept Pair = requires(P p) {
@@ -119,22 +128,36 @@ template <Iterable T> void luaw_push(lua_State* L, T const& t) {
 }
 template <Iterable T> bool luaw_is(lua_State* L, int index) { return lua_istable(L, index); }
 template <Iterable T> T luaw_to(lua_State* L, int index) {
-    luaL_checktype(L, -1, LUA_TTABLE);
+    luaL_checktype(L, index, LUA_TTABLE);
     T ts;
     int sz;
 #if LUAW == JIT
-    sz = lua_objlen(L, -1);
+    sz = lua_objlen(L, index);
 #else
-    sz = luaL_len(L, -1);
+    sz = luaL_len(L, index);
 #endif
     for (int i = 1; i <= sz; ++i) {
-        lua_rawgeti(L, -1, i);
+        lua_rawgeti(L, index, i);
         ts.push_back(luaw_to<typename T::value_type>(L, -1));
         lua_pop(L, 1);
     }
     return ts;
 }
 
-
+template <Optional T> void luaw_push(lua_State* L, T const& t) {
+    if (t.has_value())
+        luaw_push<typename T::value_type>(L, *t);
+    else
+        lua_pushnil(L);
+}
+template <Optional T> bool luaw_is(lua_State* L, int index) {
+    return lua_isnil(L, index) || luaw_is<T::value_type>(L, index);
+}
+template <Optional T> T luaw_to(lua_State* L, int index) {
+    if (lua_isnil(L, index))
+        return T {};
+    else
+        return luaw_to<typename T::value_type>(L, index);
+}
 
 #endif //LUA_INL_

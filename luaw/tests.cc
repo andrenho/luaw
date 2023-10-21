@@ -84,4 +84,7 @@ int main()
     std::vector<int> v { 10, 20, 30 };
     luaw_push(L, v);
     assert(luaw_pop<std::vector<int>>(L) == v);
+
+    std::optional<int> o = 42;
+    luaw_push(L, o); assert(luaw_pop<std::optional<int>>(L) == 42);
 }

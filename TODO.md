@@ -9,7 +9,7 @@
 - [x] Lua init and basic scripts
 - [ ] Push/To/Pop/Is/Check object
   - [ ] For optional
-  - [ ] For vector
+  - [x] For vector
   - [ ] For pair
   - [ ] For tuple
 - [ ] Get/set/has field + tree structure

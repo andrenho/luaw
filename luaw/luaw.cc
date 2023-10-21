@@ -153,7 +153,7 @@ template<> void luaw_push(lua_State* L, bool const& t) { lua_pushboolean(L, t); 
 template<> bool luaw_is<bool>(lua_State* L, int index) { return lua_isboolean(L, index); }
 template<> bool luaw_to(lua_State* L, int index) { return lua_toboolean(L, index); }
 
-template<nullptr_t> void luaw_push(lua_State* L, nullptr_t const& t=nullptr) { lua_pushnil(L); }
+template<nullptr_t> void luaw_push(lua_State* L, [[maybe_unused]] nullptr_t const& t=nullptr) { lua_pushnil(L); }
 template<> bool luaw_is<nullptr_t>(lua_State* L, int index) { return lua_isnil(L, index); }
 template<> nullptr_t luaw_to([[maybe_unused]] lua_State* L, [[maybe_unused]] int index) { return nullptr; }
 

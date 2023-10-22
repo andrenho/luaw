@@ -29,6 +29,8 @@ void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults=0, std::string
 void luaw_do(lua_State* L, std::string const& buffer, int nresults=0, std::string const& name="anonymous");
 void luaw_dofile(lua_State* L, std::string const& filename, int nresults=0, std::string const& name="anonymous");
 
+template <typename T> T luaw_do(lua_State* L, std::string const& buffer, std::string const& name="anonymous");
+
 // dump
 
 std::string luaw_dump(lua_State* L, int index, size_t max_depth=3, size_t current_depth=0);

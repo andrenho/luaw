@@ -73,6 +73,16 @@ concept Tuple = !std::is_reference_v<T> && requires(T t) {
 }(std::make_index_sequence<std::tuple_size_v<T>>());
 
 //
+// CODE LOADING
+//
+
+template <typename T> T luaw_do(lua_State* L, std::string const& buffer, std::string const& name)
+{
+    luaw_do(L, buffer, 1, name);
+    return luaw_pop<T>(L);
+}
+
+//
 // STACK MANAGEMENT
 //
 

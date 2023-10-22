@@ -49,21 +49,12 @@ mt.__index = function (t, n)
 end
 )";
 
-static int getfield(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TTABLE);
-    std::string field = luaL_checkstring(L, 2);
-    luaw_getfield(L, 1, field);
-    return 1;
-}
-
 lua_State* luaw_newstate()
 {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
     luaw_do(L, strict_lua, 0, "strict.lua");
-
-    luaw_setglobal(L, "getfield", getfield);
 
     return L;
 }
@@ -251,8 +242,11 @@ bool luaw_hasfield(lua_State* L, int index, std::string const& field)
     std::string property;
 
     int top = lua_gettop(L);
+
+    lua_pushvalue(L, index);
+
     while (std::getline(iss, property, '.')) {
-        lua_getfield(L, index, property.c_str());
+        lua_getfield(L, -1, property.c_str());
         int type = lua_type(L, -1);
         if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
             lua_settop(L, top);

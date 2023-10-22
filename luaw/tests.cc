@@ -198,14 +198,6 @@ int main()
 
     luaw_ensure(L);
 
-    // lua functions
-
-    printf("---------------------\n");
-
-    assert(luaw_do<int>(L, "return getfield({a={b={c=28}}}, 'a.b.c')") == 28);
-
-    luaw_ensure(L);
-
     // odds & ends
 
     printf("---------------------\n");

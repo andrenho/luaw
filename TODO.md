@@ -17,7 +17,9 @@
   - [ ] For variant
 - [x] TODO - false is being stored as integer
 - [x] Get/set/has field + tree structure
-- [ ] Call
+  - [ ] Export get/set/has field to Lua
+- [x] Call
 - [ ] Metatables / UserData / Class table (see push/to/is)
 - [ ] To string object (for dump)
+- [ ] Other Lua scripts for initialization (?)
 - [ ] Document

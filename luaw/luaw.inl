@@ -279,6 +279,22 @@ std::variant<T, Types...> lua_to(lua_State* L, int index) {
  */
 
 //
+// GLOBALS
+//
+
+template <typename T> T luaw_getglobal(lua_State* L, std::string const& global)
+{
+    lua_getglobal(L, global.c_str());
+    return luaw_pop<T>(L);
+}
+
+template <typename T> void luaw_setglobal(lua_State* L, std::string const& global, T const& t)
+{
+    luaw_push(L, t);
+    lua_setglobal(L, global.c_str());
+}
+
+//
 // ITERATION
 //
 
@@ -342,6 +358,49 @@ template <typename T> void luaw_setfield(lua_State* L, int index, std::string co
 {
     luaw_push(L, t);
     luaw_setfield(L, index, field);
+}
+
+//
+// CALLS
+//
+
+template <typename T> T luaw_call(lua_State* L, auto&&... args)
+{
+    ([&] { luaw_push(L, args); } (), ...);
+    lua_call(L, sizeof...(args), 1);
+    return luaw_pop<T>(L);
+}
+
+template <typename T> T luaw_call_global(lua_State* L, std::string const& global, auto&&... args)
+{
+    lua_getglobal(L, global.c_str());
+    return luaw_call<T>(L, args...);
+}
+
+template <typename T> T luaw_call_field(lua_State* L, int index, std::string const& field, auto&&... args)
+{
+    luaw_getfield(L, index, field);
+    return luaw_call<T>(L, args...);
+}
+
+void luaw_call_push(lua_State* L, int nresults, auto&... args)
+{
+    ([&] { luaw_push(L, args); } (), ...);
+    lua_call(L, sizeof...(args), nresults);
+}
+
+void luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args)
+{
+    lua_getglobal(L, global.c_str());
+    ([&] { luaw_push(L, args); } (), ...);
+    lua_call(L, sizeof...(args), nresults);
+}
+
+void luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args)
+{
+    luaw_getfield(L, index, field);
+    ([&] { luaw_push(L, args); } (), ...);
+    lua_call(L, sizeof...(args), nresults);
 }
 
 #endif //LUA_INL_

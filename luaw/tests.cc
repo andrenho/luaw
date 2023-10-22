@@ -129,6 +129,15 @@ int main()
 
     printf("---------------------\n");
 
+    // globals
+
+    luaw_ensure(L);
+
+    luaw_setglobal(L, "word", "hello world");
+    assert(luaw_getglobal<std::string>(L, "word") == "hello world");
+
+    printf("---------------------\n");
+
     // iterations
 
     luaw_ensure(L);
@@ -171,6 +180,16 @@ int main()
     assert(luaw_getfield<std::string>(L, -1, "a.b.e") == "hello");
 
     lua_pop(L, 1);
+
+    printf("---------------------\n");
+
+    // methods
+
+    luaw_do(L, "function dbl(x) return x * 2 end");
+    assert(luaw_call_global<int>(L, "dbl", 24) == 48);
+
+    luaw_do(L, "function hello(str) print('Hello '..str..'!') end");
+    luaw_call_global(L, "hello", "world");
 
     luaw_ensure(L);
 }

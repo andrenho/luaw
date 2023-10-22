@@ -295,7 +295,7 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
 std::string luaw_to_string(lua_State* L, int index)
 {
     lua_getglobal(L, "tostring");
-    lua_pushvalue(L, -2);
+    lua_pushvalue(L, index - 1);
     lua_call(L, 1, 1);
     return luaw_pop<std::string>(L);
 }

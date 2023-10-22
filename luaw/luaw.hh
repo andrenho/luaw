@@ -89,7 +89,7 @@ void luaw_call_push_field(lua_State* L, int index, std::string const& field, int
 
 // metatables
 
-template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *l);
+template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *reg);
 
 // other
 

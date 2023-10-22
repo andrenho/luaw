@@ -221,7 +221,7 @@ int main()
             return luaw_hasfield(L, index, "x") && luaw_hasfield(L, index, "y");
         }
 
-        std::string to_str() const { return "<"s + std::to_string(x) + "," + std::to_string(y) + ">"; }
+        [[nodiscard]] std::string to_str() const { return "<"s + std::to_string(x) + "," + std::to_string(y) + ">"; }
     };
 
     luaw_set_metatable<Point>(L, (luaL_Reg[]) {
@@ -238,6 +238,7 @@ int main()
     assert(pp.x == 3 && pp.y == 4);
 
     luaw_do(L, "return pt1", 1);
+    luaw_print_stack(L);
     assert(luaw_is<Point>(L, -1));
     lua_pop(L, 1);
 
@@ -254,6 +255,8 @@ int main()
     Hello* hh = luaw_push_userdata<Hello>(L, "WORLD");
     printf("%d\n", hh->x);
     hh->x = 7;
+
+    luaw_dump_stack(L);
 
     Hello* h2 = luaw_to<Hello*>(L, -1);
     printf("%d\n", h2->x);

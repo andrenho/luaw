@@ -99,6 +99,10 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::s
 
 static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, size_t current_depth)
 {
+    const char* to_str = lua_tostring(L, index);
+    if (to_str)
+        return to_str;
+
     if (current_depth > max_depth)
         return "...";
 
@@ -146,8 +150,13 @@ std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_
             return luaw_dump_table(L, index, max_depth, current_depth + 1);
         case LUA_TFUNCTION:
             return "[&]";
-        case LUA_TUSERDATA:
-            return "[userdata]";  // TODO
+        case LUA_TUSERDATA: {
+            const char* str = lua_tostring(L, index);
+            if (str)
+                return "[# "s + lua_tostring(L, index) + "]";
+            else
+                return "[# userdata]";
+        }
         case LUA_TTHREAD:
             return "[thread]";
         case LUA_TLIGHTUSERDATA: {

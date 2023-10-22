@@ -229,7 +229,7 @@ void luaw_getfield(lua_State* L, int index, std::string const& field)
     lua_pop(L, levels - 1);
 }
 
-bool luaw_isfield(lua_State* L, int index, std::string const& field)
+bool luaw_hasfield(lua_State* L, int index, std::string const& field)
 {
     std::istringstream iss(field);
     std::string property;
@@ -258,10 +258,12 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
         ps.push_back(property);
 
     int top = lua_gettop(L);
-    int levels = 0;
+    volatile int levels = 0;
+
+    lua_pushvalue(L, index);
 
     for (size_t i = 0; i < ps.size() - 1; ++i) {
-        lua_getfield(L, index, ps.at(i).c_str());
+        lua_getfield(L, -1, ps.at(i).c_str());
         int type = lua_type(L, -1);
         if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
             lua_settop(L, top);
@@ -270,8 +272,8 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
         ++levels;
     }
 
-    lua_pushvalue(L, levels - 1);   // copy value
-    lua_setfield(L, -levels, field.c_str());
+    lua_pushvalue(L, - index);
+    lua_setfield(L, -2, ps.at(ps.size() - 1).c_str());
 
-    lua_settop(L, top);
+    lua_settop(L, top - 1);
 }

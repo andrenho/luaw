@@ -338,4 +338,10 @@ template <typename T> T luaw_getfield(lua_State* L, int index, std::string const
     return t;
 }
 
+template <typename T> void luaw_setfield(lua_State* L, int index, std::string const& field, T const& t)
+{
+    luaw_push(L, t);
+    luaw_setfield(L, index, field);
+}
+
 #endif //LUA_INL_

@@ -155,16 +155,20 @@ int main()
     luaw_ensure(L);
 
     luaw_do(L, "return { a = { b = { c = 84 } } }", 1);
-    assert(luaw_isfield(L, -1, "a.b"));
-    assert(luaw_isfield(L, -1, "a.b.c"));
-    assert(luaw_isfield(L, -1, "a.b.c.d") == false);
+    assert(luaw_hasfield(L, -1, "a.b"));
+    assert(luaw_hasfield(L, -1, "a.b.c"));
+    assert(luaw_hasfield(L, -1, "a.b.c.d") == false);
 
     luaw_getfield(L, -1, "a.b.c");
     assert(luaw_pop<int>(L) == 84);
     assert(luaw_getfield<int>(L, -1, "a.b.c") == 84);
 
     luaw_push(L, 65);
-    luaw_setfield(L, -1, "a.b.d");
+    luaw_setfield(L, -2, "a.b.d");
+    assert(luaw_getfield<int>(L, -1, "a.b.d") == 65);
+
+    luaw_setfield(L, -2, "a.b.e", "hello");
+    assert(luaw_getfield<std::string>(L, -1, "a.b.e") == "hello");
 
     lua_pop(L, 1);
 

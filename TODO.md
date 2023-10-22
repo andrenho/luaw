@@ -16,7 +16,7 @@
   - [x] For map
   - [ ] For variant
 - [x] TODO - false is being stored as integer
-- [ ] Get/set/has field + tree structure
+- [x] Get/set/has field + tree structure
 - [ ] Call
 - [ ] Metatables / UserData / Class table (see push/to/is)
 - [ ] To string object (for dump)

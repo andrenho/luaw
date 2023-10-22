@@ -4,7 +4,7 @@ CPPFLAGS := -I. -std=c++20 -Wall -Wextra
 CXX = g++
 
 ifdef DEBUG
-	CPPFLAGS += -Og -ggdb
+	CPPFLAGS += -O0 -Og -ggdb
 else
 	CPPFLAGS += -Ofast
 endif

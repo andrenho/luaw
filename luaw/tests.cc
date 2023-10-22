@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstring>
 #include <cstdio>
+
 #include <string>
 #include <tuple>
 #include <map>
@@ -20,7 +21,7 @@ extern "C" {
 }
 
 int hello_f(lua_State*) {
-    printf("Lua function!");
+    printf("Lua function!\n");
     return 0;
 }
 
@@ -238,8 +239,35 @@ int main()
 
     luaw_do(L, "return pt1", 1);
     assert(luaw_is<Point>(L, -1));
+    lua_pop(L, 1);
 
     luaw_do(L, "print(pt1)");
+
+    // userdata
+    struct Hello {
+        Hello(std::string s) { printf("HELLO %s!\n", s.c_str()); }
+        ~Hello() { printf("HELLO destroyed.\n"); }
+
+        int x = 8;
+    };
+
+    Hello* hh = luaw_push_userdata<Hello>(L, "WORLD");
+    printf("%d\n", hh->x);
+    hh->x = 7;
+
+    Hello* h2 = luaw_to<Hello*>(L, -1);
+    printf("%d\n", h2->x);
+    lua_pop(L, 1);
+
+    luaw_ensure(L);
+
+    // userdata override GC
+    luaw_set_metatable<Hello>(L, (luaL_Reg[]) {
+            { "__tostring", [](lua_State *L) { luaw_push(L, "HELLO"); return 1; } },
+            {nullptr, nullptr}
+    });
+
+    luaw_push_userdata<Hello>(L, "H3");
 
     // odds & ends
 
@@ -248,5 +276,5 @@ int main()
     luaw_push(L, hello_f);
     luaw_call(L);
 
-
+    lua_close(L);
 }

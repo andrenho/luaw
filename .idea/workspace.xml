@@ -21,6 +21,8 @@
   <component name="ChangeListManager">
     <list default="true" id="62ba0f94-4a22-48f7-b3cb-a2d0bebe1705" name="Changes" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/luaw/luaw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/luaw/luaw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/luaw/luaw.inl" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.inl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/luaw/tests.cc" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/tests.cc" afterDir="false" />
     </list>
@@ -110,7 +112,7 @@
       <recent name="$PROJECT_DIR$/luaw" />
     </key>
   </component>
-  <component name="RunManager" selected="Makefile Application.check">
+  <component name="RunManager" selected="Makefile Application.check-jit">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -178,7 +180,7 @@
       <workItem from="1697718037870" duration="9792000" />
       <workItem from="1697812032686" duration="9846000" />
       <workItem from="1697837495549" duration="59000" />
-      <workItem from="1697837564044" duration="43342000" />
+      <workItem from="1697837564044" duration="48219000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />
@@ -396,7 +398,23 @@
       <option name="project" value="LOCAL" />
       <updated>1697984698638</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary=".">
+      <option name="closed" value="true" />
+      <created>1697987804856</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1697987804856</updated>
+    </task>
+    <task id="LOCAL-00029" summary=".">
+      <option name="closed" value="true" />
+      <created>1697987818212</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1697987818212</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -20,7 +20,7 @@
 - [x] Call
 - [x] Struct tables: push/to/is
   - [x] Metatables + print
-- [ ] Metatables / UserData / Class table (see push/to/is)
+- [x] Metatables / UserData / Class table (see push/to/is)
 - [ ] To string object (for dump)
 - [ ] Other Lua scripts for initialization (?)
 - [ ] Document

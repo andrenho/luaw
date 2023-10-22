@@ -147,7 +147,7 @@ std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_
         case LUA_TFUNCTION:
             return "[&]";
         case LUA_TUSERDATA:
-            return "{}";  // TODO
+            return "[userdata]";  // TODO
         case LUA_TTHREAD:
             return "[thread]";
         case LUA_TLIGHTUSERDATA: {

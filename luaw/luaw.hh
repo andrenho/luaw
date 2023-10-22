@@ -53,6 +53,10 @@ template <typename T> T luaw_pop(lua_State* L);
 
 void luaw_push(lua_State* L, lua_CFunction f);
 
+// userdata
+
+template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args... args);
+
 // globals
 
 template <typename T> T    luaw_getglobal(lua_State* L, std::string const& global);

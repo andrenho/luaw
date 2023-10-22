@@ -267,6 +267,32 @@ template <MapType T> T luaw_to(lua_State* L, int index) {
     return t;
 }
 
+template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args... args)
+{
+    T* t = (T*) lua_newuserdata(L, sizeof(T));
+    new(t) T(args...);
+
+    // get metatable
+    lua_pushstring(L, typeid(T).name());
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (!lua_isnil(L, -1)) {
+        lua_setmetatable(L, -2);   // apply stored metatable
+        // TODO - add GC
+    } else {
+        // metatable not found, create one with only the GC calling the destructor
+        lua_pop(L, 1);
+        luaL_newmetatable(L, typeid(T).name());
+        luaL_setfuncs(L, (luaL_Reg[]) {
+                { "__gc", [](lua_State* L) { luaw_to<T*>(L, -1)->~T(); return 0; } },
+                {nullptr, nullptr}
+        }, 0);
+        lua_pop(L, 1);
+        luaL_setmetatable(L, typeid(T).name());
+    }
+
+    return t;
+}
+
 // struct objects
 
 template <PushableToLua T> void luaw_push(lua_State* L, T const& t)

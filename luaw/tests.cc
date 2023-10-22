@@ -219,7 +219,17 @@ int main()
         static bool lua_is(lua_State* L, int index) {
             return luaw_hasfield(L, index, "x") && luaw_hasfield(L, index, "y");
         }
+
+        std::string to_str() const { return "<"s + std::to_string(x) + "," + std::to_string(y) + ">"; }
     };
+
+    luaw_set_metatable<Point>(L, (luaL_Reg[]) {
+            { "__tostring", [](lua_State *L) {
+                luaw_push(L, luaw_to<Point>(L, 1).to_str());
+                return 1;
+            } },
+            {nullptr, nullptr}
+    });
 
     luaw_setglobal(L, "pt1", Point { 3, 4 });
     assert(luaw_do<int>(L, "return pt1.x") == 3);
@@ -228,6 +238,8 @@ int main()
 
     luaw_do(L, "return pt1", 1);
     assert(luaw_is<Point>(L, -1));
+
+    luaw_do(L, "print(pt1)");
 
     // odds & ends
 

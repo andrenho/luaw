@@ -272,6 +272,7 @@ template <MapType T> T luaw_to(lua_State* L, int index) {
 template <PushableToLua T> void luaw_push(lua_State* L, T const& t)
 {
     t.to_lua(L);
+    luaL_setmetatable(L, typeid(T).name());
 }
 
 template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)

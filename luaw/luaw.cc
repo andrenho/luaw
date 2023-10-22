@@ -104,7 +104,7 @@ static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, si
     bool found = false;
     std::stringstream ss;
 
-    luaw_ipairs(L, index, [&](lua_State* L, int i) {
+    luaw_ipairs(L, index, [&](lua_State* L, int) {
         ss << luaw_dump(L, -1, max_depth, current_depth) << ", ";
         found = true;
     });
@@ -258,7 +258,7 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
         ps.push_back(property);
 
     int top = lua_gettop(L);
-    volatile int levels = 0;
+    int levels = 0;
 
     lua_pushvalue(L, index);
 
@@ -272,7 +272,7 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
         ++levels;
     }
 
-    lua_pushvalue(L, - index);
+    lua_pushvalue(L, - levels - 2);
     lua_setfield(L, -2, ps.at(ps.size() - 1).c_str());
 
     lua_settop(L, top - 1);

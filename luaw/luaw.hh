@@ -91,6 +91,10 @@ void luaw_call_push_field(lua_State* L, int index, std::string const& field, int
 
 template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *l);
 
+// other
+
+std::string luaw_to_string(lua_State* L, int index);
+
 #include "luaw.inl"
 
 #endif //LUAW_HH_

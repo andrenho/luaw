@@ -238,8 +238,8 @@ int main()
     assert(pp.x == 3 && pp.y == 4);
 
     luaw_do(L, "return pt1", 1);
-    luaw_print_stack(L);
     assert(luaw_is<Point>(L, -1));
+    printf("%s\n", luaw_to_string(L, -1).c_str());
     lua_pop(L, 1);
 
     luaw_do(L, "print(pt1)");
@@ -255,8 +255,6 @@ int main()
     Hello* hh = luaw_push_userdata<Hello>(L, "WORLD");
     printf("%d\n", hh->x);
     hh->x = 7;
-
-    luaw_dump_stack(L);
 
     Hello* h2 = luaw_to<Hello*>(L, -1);
     printf("%d\n", h2->x);

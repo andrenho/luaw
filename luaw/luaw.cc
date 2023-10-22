@@ -296,3 +296,8 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
 
     lua_settop(L, top - 1);
 }
+
+std::string luaw_to_string(lua_State* L, int index)
+{
+    return "XXXXX";
+}

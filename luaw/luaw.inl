@@ -1,14 +1,6 @@
 #ifndef LUA_INL_
 #define LUA_INL_
 
-extern "C" {
-#if LUAW == JIT
-# include "../luajit/src/lua.hpp"
-#else
-# include "lua.hpp"
-#endif
-}
-
 #include <map>
 #include <unordered_map>
 #include <tuple>
@@ -36,6 +28,7 @@ concept PointerType = requires(T param)
 {
     requires std::is_pointer_v<T>;
     requires !std::is_same_v<T, const char*>;
+    requires !std::is_same_v<T, lua_CFunction>;
 };
 
 template< typename T >

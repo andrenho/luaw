@@ -19,6 +19,11 @@ extern "C" {
 #endif
 }
 
+int hello_f(lua_State*) {
+    printf("Lua function!");
+    return 0;
+}
+
 int main()
 {
     lua_State* L = luaw_newstate();
@@ -192,4 +197,11 @@ int main()
     luaw_call_global(L, "hello", "world");
 
     luaw_ensure(L);
+
+    // odds & ends
+
+    printf("---------------------\n");
+
+    luaw_push(L, hello_f);
+    luaw_call(L);
 }

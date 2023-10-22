@@ -207,6 +207,9 @@ template<> void luaw_push(lua_State* L, const char* t) { lua_pushstring(L, t); }
 template<> bool luaw_is<const char*>(lua_State* L, int index) { return lua_isstring(L, index); }
 template<> const char* luaw_to<const char*>(lua_State* L, int index) { return lua_tostring(L, index); }
 
+template<> void luaw_push(lua_State* L, lua_CFunction const& f) { lua_pushcfunction(L, f); }
+void luaw_push(lua_State* L, lua_CFunction f) { lua_pushcfunction(L, f); }
+
 void luaw_getfield(lua_State* L, int index, std::string const& field)
 {
     std::istringstream iss(field);

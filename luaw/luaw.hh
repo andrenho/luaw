@@ -7,7 +7,13 @@
 
 #include <stdexcept>
 
-struct lua_State;
+extern "C" {
+#if LUAW == JIT
+# include "../luajit/src/lua.hpp"
+#else
+# include "lua.hpp"
+#endif
+}
 
 class LuaException : public std::runtime_error {
 public:
@@ -42,6 +48,8 @@ template <typename T> bool luaw_is(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index, T const& default_);
 template <typename T> T luaw_pop(lua_State* L);
+
+void luaw_push(lua_State* L, lua_CFunction f);
 
 // globals
 

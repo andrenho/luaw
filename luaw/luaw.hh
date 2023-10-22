@@ -83,6 +83,10 @@ void luaw_call_push(lua_State* L, int nresults, auto&&... args);
 void luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args);
 void luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args);
 
+// metatables
+
+template<typename T> void luaw_add_metatable(lua_State* L, const luaL_Reg *l);
+
 #include "luaw.inl"
 
 #endif //LUAW_HH_

@@ -47,7 +47,6 @@ concept Iterable = requires(T t) {
     requires !std::is_same_v<T, std::string>;
 };
 
-
 template<typename T>
 concept MapType =
     std::same_as<T, std::map<typename T::key_type, typename T::mapped_type, typename T::key_compare, typename T::allocator_type>> ||
@@ -71,6 +70,21 @@ concept Tuple = !std::is_reference_v<T> && requires(T t) {
 } && []<std::size_t... N>(std::index_sequence<N...>) {
     return (has_tuple_element<T, N> && ...);
 }(std::make_index_sequence<std::tuple_size_v<T>>());
+
+template <typename T>
+concept PushableToLua = requires(T t) {
+    { &T::to_lua };
+};
+
+template <typename T>
+concept ConvertibleToLua = requires(T t) {
+    { &T::from_lua };
+};
+
+template <typename T>
+concept ComparableToLua = requires(T t) {
+    { &T::lua_is };
+};
 
 //
 // CODE LOADING
@@ -253,6 +267,26 @@ template <MapType T> T luaw_to(lua_State* L, int index) {
     return t;
 }
 
+// struct objects
+
+template <PushableToLua T> void luaw_push(lua_State* L, T const& t)
+{
+    t.to_lua(L);
+}
+
+template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)
+{
+    luaL_checktype(L, index, LUA_TTABLE);
+    return T::from_lua(L, index);
+}
+
+template <ComparableToLua T> bool luaw_is(lua_State*L, int index)
+{
+    if (lua_type(L, index) != LUA_TTABLE)
+        return false;
+    return T::lua_is(L, index);
+}
+
 /*
 // variant
 
@@ -360,7 +394,7 @@ template <typename T> T luaw_getfield(lua_State* L, int index, std::string const
 template <typename T> void luaw_setfield(lua_State* L, int index, std::string const& field, T const& t)
 {
     luaw_push(L, t);
-    luaw_setfield(L, index, field);
+    luaw_setfield(L, index - 1, field);
 }
 
 //

@@ -18,6 +18,8 @@
 - [x] TODO - false is being stored as integer
 - [x] Get/set/has field + tree structure
 - [x] Call
+- [x] Struct tables: push/to/is
+  - [ ] Metatables + print
 - [ ] Metatables / UserData / Class table (see push/to/is)
 - [ ] To string object (for dump)
 - [ ] Other Lua scripts for initialization (?)

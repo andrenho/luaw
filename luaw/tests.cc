@@ -181,7 +181,7 @@ int main()
     luaw_setfield(L, -2, "a.b.d");
     assert(luaw_getfield<int>(L, -1, "a.b.d") == 65);
 
-    luaw_setfield(L, -2, "a.b.e", "hello");
+    luaw_setfield(L, -1, "a.b.e", "hello");
     assert(luaw_getfield<std::string>(L, -1, "a.b.e") == "hello");
 
     lua_pop(L, 1);
@@ -197,6 +197,37 @@ int main()
     luaw_call_global(L, "hello", "world");
 
     luaw_ensure(L);
+
+    // table types
+
+    struct Point {
+        int x, y;
+
+        void to_lua(lua_State* L) const {
+            lua_newtable(L);
+            luaw_setfield(L, -1, "x", x);
+            luaw_setfield(L, -1, "y", y);
+        }
+
+        static Point from_lua(lua_State* L, int index) {
+            return {
+                .x = luaw_getfield<int>(L, index, "x"),
+                .y = luaw_getfield<int>(L, index, "y"),
+            };
+        }
+
+        static bool lua_is(lua_State* L, int index) {
+            return luaw_hasfield(L, index, "x") && luaw_hasfield(L, index, "y");
+        }
+    };
+
+    luaw_setglobal(L, "pt1", Point { 3, 4 });
+    assert(luaw_do<int>(L, "return pt1.x") == 3);
+    Point pp = luaw_getglobal<Point>(L, "pt1");
+    assert(pp.x == 3 && pp.y == 4);
+
+    luaw_do(L, "return pt1", 1);
+    assert(luaw_is<Point>(L, -1));
 
     // odds & ends
 

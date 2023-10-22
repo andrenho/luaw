@@ -440,4 +440,15 @@ void luaw_call_push_field(lua_State* L, int index, std::string const& field, int
     lua_call(L, sizeof...(args), nresults);
 }
 
+//
+// METATABLE
+//
+
+template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *reg)
+{
+    luaL_newmetatable(L, typeid(T).name());
+    luaL_setfuncs(L, reg, 0);
+    lua_pop(L, 1);
+}
+
 #endif //LUA_INL_

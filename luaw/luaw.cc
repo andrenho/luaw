@@ -99,9 +99,9 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::s
 
 static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, size_t current_depth)
 {
-    const char* to_str = lua_tostring(L, index);
-    if (to_str)
-        return to_str;
+    std::string value = luaw_to_string(L, index);
+    if (!value.starts_with("table: "))
+        return value;
 
     if (current_depth > max_depth)
         return "...";
@@ -150,13 +150,8 @@ std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_
             return luaw_dump_table(L, index, max_depth, current_depth + 1);
         case LUA_TFUNCTION:
             return "[&]";
-        case LUA_TUSERDATA: {
-            const char* str = lua_tostring(L, index);
-            if (str)
-                return "[# "s + lua_tostring(L, index) + "]";
-            else
-                return "[# userdata]";
-        }
+        case LUA_TUSERDATA:
+            return "[# "s + luaw_to_string(L, index) + "]";
         case LUA_TTHREAD:
             return "[thread]";
         case LUA_TLIGHTUSERDATA: {
@@ -299,5 +294,8 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
 
 std::string luaw_to_string(lua_State* L, int index)
 {
-    return "XXXXX";
+    lua_getglobal(L, "tostring");
+    lua_pushvalue(L, -2);
+    lua_call(L, 1, 1);
+    return luaw_pop<std::string>(L);
 }

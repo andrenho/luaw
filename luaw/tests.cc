@@ -264,11 +264,13 @@ int main()
 
     // userdata override GC
     luaw_set_metatable<Hello>(L, (luaL_Reg[]) {
-            { "__tostring", [](lua_State *L) { luaw_push(L, "HELLO"); return 1; } },
+            { "__tostring", [](lua_State *L) { luaw_push(L, "<HELLO>"); return 1; } },
             {nullptr, nullptr}
     });
 
     luaw_push_userdata<Hello>(L, "H3");
+    luaw_print_stack(L);
+    lua_pop(L, 1);
 
     // odds & ends
 

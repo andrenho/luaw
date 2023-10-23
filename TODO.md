@@ -21,6 +21,8 @@
 - [x] Struct tables: push/to/is
   - [x] Metatables + print
 - [x] Metatables / UserData / Class table (see push/to/is)
-- [ ] To string object (for dump)
+- [x] To string object (for dump)
 - [ ] Other Lua scripts for initialization (?)
+- [ ] Generate zippable bytecode
+- [ ] Deployment
 - [ ] Document

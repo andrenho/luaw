@@ -3,6 +3,9 @@
 A C++ extension to the Lua C library with a focus on interaction between Lua and C++. 
 It allows converting Lua objects to C++ objects and vice-versa. 
 
+(You need to be familiar with the Lua C API for this library make sense to you: https://www.lua.org/manual/5.4/)
+
+
 It allows, for example, for things like this:
 
 ```c++
@@ -119,14 +122,175 @@ Point mp = luaw_pop<Point>(L);
 printf("%d", mp.x);               // result: 30
 ```
 
+### Custom C++ classes as Lua userdata
 
+```c++
+void luaw_push_userdata<T>(lua_State* L, ConstructorArgs...);
+```
+
+Custom C++ can be added to Lua as userdata. In this case, Lua itself will manage the object memory.
+
+Example:
+
+```c++
+struct MyStruct {
+    MyStruct(int x) : x(x) { printf("Constructor called.\n"); }
+    ~MyStruct()            { printf("Destructor called.\n"); }
+    
+    int x;
+};
+
+lua_State* L = luaw_newstate();
+luaw_push_userdata<MyStruct>(L, 42);      // "Constructor called"
+
+MyStruct* my_obj = luaw_to<MyStruct*>(L, -1);
+int x = my_obj->x;                        // x = 42
+
+lua_close(L);                             // "Destructor called"
+```
+
+A metatable is automatically applied to any objects, in which the 
+
+### Metatables
+
+```c++
+void luaw_set_metatable<T>(lua_State* L,const luaL_Reg* reg);
+```
+
+This function can be used to create a metatable for a custom C++ class. After this function is
+called for a particular class, any objects created (either as table or userdata) will have that
+metatable applied to it.
+
+Example:
+
+```c++
+class X {
+    std::string to_string() const { return "My class X"; }
+};
+
+luaw_set_metatable<X>(L, (luaL_Reg[]) {
+    { "__tostring", [](lua_State *L) {
+        X* x = luaw_to<X*>(L, 1);
+        luaw_push(x->to_string());
+        return 1;
+    },
+    { nullptr, nullptr }
+});
+
+luaw_push_userdata<X>(L);
+luaL_set_global(L, "x");
+
+luaw_do(L, "print(x)");            // result: "My class X":w
+```
+
+## Globals
+
+```c++
+T    luaw_getglobal(lua_State* L, string global_name);
+void luaw_setglobal(lua_State* L, string global_name, T value);
+```
+
+These functions will manage globals doing the direct C++/Lua conversion.
+
+## Iteration
+
+```c++
+// iterate over a Lua table array
+void luaw_ipairs(lua_State*L, int index, void(lua_State*, int) function);
+
+// iterate over a Lua table with string keys
+void luaw_spairs(lua_State*L, int index, void(lua_State*, string) function);
+
+// iterate over a Lua table
+void luaw_spairs(lua_State*L, int index, void(lua_State*) function);
+```
+
+These functions are used to iterate over Lua tables. A lambda is called for each record. For the 
+first two versions the value is placed on the stack, and in the thirds the key and value are placed
+into the stack. No need to pop it during iterations.
+
+Example:
+
+```c++
+luaw_do(L, "return { 10, 20, 30 }");
+luaw_ipairs(L, -1, [](lua_State* L, int key) { printf("%d ", luaw_to<int>(L, -1)); });
+// result: "10 20 30"
+```
+
+## Fields
+
+```c++
+// the `index` always refer to the table position in the stack
+
+void luaw_getfield(lua_State* L, int index, string field);  // get a field and put it on the stack
+void luaw_setfield(lua_State* L, int index, string field);  // set the field on the stack position -1
+
+bool luaw_hasfield(lua_State* L, int index, string field);  // return if the field exists
+
+// these are the same versions as above, but return the C++ object instead of putting in the stack
+T    luaw_getfield<T>(lua_State* L, int index, string field);
+void luaw_setfield(lua_State* L, int index, string field, T value);
+```
+
+These functions are similar to `lua_getfield`and `lua_setfield` (from the Lua API), but they can
+read compound fields. For example, in the following Lua table:
+
+```Lua
+{
+  a = {
+    b = {
+      c = 48
+    }
+  }
+} 
+```
+
+Getting the field `"a.b.c"` using these functions will return 48.
+
+## Function calls
+
+```c++
+// call the function on the stack, passing the C++ values as parameters
+// put the result on the stack
+void luaw_call_push(lua_State* L, int nresults, auto parameters...);
+
+// same thing, but return result as a C++ value
+T    luaw_call(lua_State* L, auto parameters...);
+
+// same as the versions above, but the function is a global
+void luaw_call_global_push(lua_State* L, string global, int nresults, auto parameters...);
+T    luaw_call_global(lua_State* L, string global, auto parameters...);
+
+// same as the versions above, but the function is a field
+void luaw_call_field_push(lua_State* L, int index, string field, int nresults, auto parameters...);
+T    luaw_call_field(lua_State* L, int index, string field, auto parameters...);
+```
 
 ## Other
 
 ```
-int luaw_len(L, index)             -> get Lua table size
-int luaw_ensure(L, expected=0)     -> abort if stack size is different than expected
+// get Lua table size
+int luaw_len(lua_State* L, int index);
+
+// ensure that the stack has the expected number of items, otherwise abort
+int luaw_ensure(lua_State* L, int expected=0);
+
+// call the "tostring" metamethod on the object
+string luaw_to_string(lua_State* L, int index);
 ```
 
-
 ## Debugging
+
+```c++
+// return the string representation of an object in the stack
+string luaw_dump(lua_State* L, int index, size_t max_depth=3);
+
+// return the string representation of the whole stack
+string luaw_dump_stack(lua_State* L, size_t max_depth=3);
+
+// print the whole stack
+string luaw_print_stack(lua_State* L, size_t max_depth=3);
+```
+
+`max_depth` is the maxiumum depth when printing tables. If any object has a `__tostring` metamethod,
+this is used instead.

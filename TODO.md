@@ -25,4 +25,4 @@
 - [ ] Other Lua scripts for initialization (?)
 - [ ] Generate zippable bytecode
 - [ ] Deployment
-- [ ] Document
+- [x] Document

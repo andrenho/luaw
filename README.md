@@ -269,7 +269,7 @@ T    luaw_call_field(lua_State* L, int index, string field, auto parameters...);
 
 ## Other
 
-```
+```c++
 // get Lua table size
 int luaw_len(lua_State* L, int index);
 

@@ -5,7 +5,6 @@ It allows converting Lua objects to C++ objects and vice-versa.
 
 (You need to be familiar with the Lua C API for this library make sense to you: https://www.lua.org/manual/5.4/)
 
-
 It allows, for example, for things like this:
 
 ```c++
@@ -24,6 +23,8 @@ Supports [Lua 5.4](https://www.lua.org/) and [LuaJIT](https://luajit.org/). One 
 (`*.a`) is generated for each environment - the static library also includes the Lua library.
 
 Errors during execution of the functions below will throw a `LuaException`.
+
+See [Build instructions](#build-instructions).
 
 ## Initialization
 
@@ -323,3 +324,17 @@ string luaw_print_stack(lua_State* L, size_t max_depth=3);
 
 `max_depth` is the maxiumum depth when printing tables. If any object has a `__tostring` metamethod,
 this is used instead.
+
+## Build instructions
+
+The only dependency is zlib - you probably already have it installed.
+
+```bash
+git submodule update --init --recursive
+make
+```
+
+This will generate the static libraries `libluaw-54.a` and `libluaw-jit.a`, and the applications
+`luazh-54` and `luazh-jit` (for compressing lua files for embedding).
+
+General recommendation is that this library is provided as a git submodule to any projects using it.

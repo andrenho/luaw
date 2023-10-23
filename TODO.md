@@ -22,7 +22,6 @@
   - [x] Metatables + print
 - [x] Metatables / UserData / Class table (see push/to/is)
 - [x] To string object (for dump)
-- [ ] Other Lua scripts for initialization (?)
 - [ ] Generate zippable bytecode
 - [ ] Deployment
 - [x] Document

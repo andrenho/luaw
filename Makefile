@@ -1,5 +1,6 @@
 OBJ := luaw/luaw.o
-CPPFLAGS := -I. -std=c++20 -Wall -Wextra
+CPPFLAGS := -I. -std=c++20 -Wall -Wextra `pkg-config --cflags zlib`
+LDFLAGS := `pkg-config --libs zlib`
 
 CXX = g++
 
@@ -9,7 +10,7 @@ else
 	CPPFLAGS += -Ofast
 endif
 
-all: libluaw-54.a libluaw-jit.a
+all: libluaw-54.a libluaw-jit.a luazh-54 luazh-jit
 
 #
 # libluaw-54.a
@@ -28,7 +29,10 @@ libluaw-54.a: luaw/luaw-54.o lua/liblua.a
 	rm -rf tmp54
 
 check-54: luaw/tests.cc libluaw-54.a
-	$(CXX) ${CPPFLAGS} -Ilua -DLUAW=54 -o $@ $^
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ $^
+
+luazh-54: luazh/luazh.cc libluaw-54.a
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ $^
 
 #
 # libluaw-jit.a
@@ -47,7 +51,14 @@ libluaw-jit.a: luaw/luaw-jit.o luajit/src/libluajit.a
 	rm -rf tmpjit
 
 check-jit: luaw/tests.cc libluaw-jit.a
-	$(CXX) ${CPPFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
+
+luazh-jit: luazh/luazh.cc libluaw-jit.a
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
+
+#
+# other targets
+#
 
 check: check-54 check-jit
 	./check-54

@@ -281,7 +281,7 @@ int main()
     luaw_push(L, hello_f);
     luaw_call(L);
 
-    luaw_do_z(L, (unsigned char *) test_lua_zbytecode, test_lua_len_compressed, test_lua_len_uncompressed);
+    luaw_do_z(L, test);
 
     lua_close(L);
 }

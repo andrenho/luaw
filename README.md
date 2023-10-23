@@ -60,18 +60,10 @@ The applications `luazh-54` and `luazh-jit` allow for generating a C header cont
 lua bytecode, that can be embedded in the application. The executable can be run as this:
 
 ```bash
-./luazh-54 -s test.lua > test.hh      # -s will strip debugging info
+./luazh-54 test_lua -s test.lua > test.hh      # -s will strip debugging info
 ```
 
-This will generate a header that looks like this:
-
-```c++
-#define test_lua_len_compressed 130
-#define test_lua_len_uncompressed 145
-static const unsigned char test_lua_zbytecode[] = { ... };
-```
-
-And it can be loaded with the following function`
+This will generate a header can be loaded with the following function:
 
 ```c++
 void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t uncompressed_sz, 
@@ -79,7 +71,7 @@ void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t 
 
 // example usage:
 #include "test.hh"
-luaw_do_z(L, test_lua_zbytecode, test_lua_len_compressed, test_lua_len_uncompressed);
+luaw_do_z(L, test_lua);
 ```
 
 ## Stack management

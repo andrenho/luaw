@@ -84,11 +84,17 @@ void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults, std::string c
     }
 }
 
-void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t uncompressed_sz, int nresults, std::string const& name)
+struct LuaCompressedBytecode { unsigned long c, u; const char* f; unsigned char* data; };
+void luaw_do_z(lua_State* L, LuaCompressedBytecode lcb[])
 {
-    uint8_t result[uncompressed_sz];
-    uncompress(result, &uncompressed_sz, data, compressed_sz);
-    luaw_do(L, result, uncompressed_sz, nresults, name);
+    size_t i = 0;
+
+    while (lcb[i].c != 0) {
+        uint8_t result[lcb[i].u];
+        uncompress(result, &lcb[i].u, lcb[i].data, lcb[i].c);
+        luaw_do(L, result, lcb[i].u, 0, lcb[i].f);
+        ++i;
+    }
 }
 
 void luaw_do(lua_State* L, std::string const& buffer, int nresults, std::string const& name)

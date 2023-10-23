@@ -149,7 +149,8 @@ int x = my_obj->x;                        // x = 42
 lua_close(L);                             // "Destructor called"
 ```
 
-A metatable is automatically applied to any objects, in which the 
+A metatable is automatically applied to any objects, in which the `__gc` metamethod automatically
+calls the constructor.
 
 ### Metatables
 

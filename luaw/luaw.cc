@@ -4,6 +4,7 @@
 #include <sstream>
 #include <functional>
 
+#include <tgmath.h>
 #include <zlib.h>
 
 using namespace std::string_literals;

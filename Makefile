@@ -29,11 +29,11 @@ libluaw-54.a: luaw/luaw-54.o lua/liblua.a
 	rm -rf tmp54
 
 luazh-54: luazh/luazh.cc libluaw-54.a
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ $^
+	$(CXX) ${CPPFLAGS} -Ilua -DLUAW=54 -o $@ $^ ${LDFLAGS} 
 
 check-54: luaw/tests.cc libluaw-54.a luazh-54
 	./luazh-54 test luazh/test.lua > luaw/test-54.hh
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ luaw/tests.cc libluaw-54.a
+	$(CXX) ${CPPFLAGS} -Ilua -DLUAW=54 -o $@ luaw/tests.cc libluaw-54.a ${LDFLAGS} 
 
 #
 # libluaw-jit.a
@@ -52,11 +52,11 @@ libluaw-jit.a: luaw/luaw-jit.o luajit/src/libluajit.a
 	rm -rf tmpjit
 
 luazh-jit: luazh/luazh.cc libluaw-jit.a
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
+	$(CXX) ${CPPFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^ ${LDFLAGS} 
 
 check-jit: luaw/tests.cc libluaw-jit.a luazh-jit
 	./luazh-jit test luazh/test.lua > luaw/test-jit.hh
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ luaw/tests.cc libluaw-jit.a
+	$(CXX) ${CPPFLAGS} -Iluajit/src -DLUAW=JIT -o $@ luaw/tests.cc libluaw-jit.a ${LDFLAGS} 
 
 #
 # other targets

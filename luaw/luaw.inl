@@ -1,6 +1,7 @@
 #ifndef LUA_INL_
 #define LUA_INL_
 
+#include <optional>
 #include <map>
 #include <unordered_map>
 #include <tuple>
@@ -35,7 +36,7 @@ template< typename T >
 concept Optional = requires( T t )
 {
     typename T::value_type;
-    std::same_as< T, std::optional< typename T::value_type > >;
+    requires std::same_as< T, std::optional< typename T::value_type > >;
     t.value();
 };
 
@@ -136,7 +137,7 @@ template <FloatingType T> void luaw_push(lua_State* L, T const& t) { lua_pushnum
 template <FloatingType T> bool luaw_is(lua_State* L, int index) { return lua_isnumber(L, index); }
 template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
 
-template <PointerType T> void luaw_push(lua_State* L, T t) { lua_pushlightuserdata(L, t); }
+template <PointerType T> void luaw_push(lua_State* L, T const& t) { lua_pushlightuserdata(L, t); }
 template <PointerType T> bool luaw_is(lua_State* L, int index) { return lua_isuserdata(L, index); }
 template <PointerType T> T luaw_to(lua_State* L, int index) { return (T) lua_touserdata(L, index); }
 
@@ -282,10 +283,11 @@ template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args.
         // metatable not found, create one with only the GC calling the destructor
         lua_pop(L, 1);
         luaL_newmetatable(L, typeid(T).name());
-        luaL_setfuncs(L, (luaL_Reg[]) {
+        static luaL_Reg destructor_metatable[] {
                 { "__gc", [](lua_State* L) { luaw_to<T*>(L, -1)->~T(); return 0; } },
                 {nullptr, nullptr}
-        }, 0);
+        };
+        luaL_setfuncs(L, destructor_metatable, 0);
         lua_pop(L, 1);
         luaL_setmetatable(L, typeid(T).name());
     }

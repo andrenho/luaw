@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <variant>
+#include <vector>
 
 using namespace std::string_literals;
 
@@ -105,7 +106,8 @@ int main()
 
     int* x = (int *) malloc(sizeof(int));
     *x = 40;
-    luaw_push(L, x); assert(*luaw_pop<int*>(L) == 40);
+    luaw_push<int *>(L, x);
+    assert(*luaw_pop<int*>(L) == 40);
     free(x);
 
     std::vector<int> v { 10, 20, 30 };
@@ -226,13 +228,14 @@ int main()
         [[nodiscard]] std::string to_str() const { return "<"s + std::to_string(x) + "," + std::to_string(y) + ">"; }
     };
 
-    luaw_set_metatable<Point>(L, (luaL_Reg[]) {
+    static luaL_Reg reg[] {
             { "__tostring", [](lua_State *L) {
                 luaw_push(L, luaw_to<Point>(L, 1).to_str());
                 return 1;
             } },
             {nullptr, nullptr}
-    });
+    };
+    luaw_set_metatable<Point>(L, reg);
 
     luaw_setglobal(L, "pt1", Point { 3, 4 });
     assert(luaw_do<int>(L, "return pt1.x") == 3);
@@ -265,10 +268,11 @@ int main()
     luaw_ensure(L);
 
     // userdata override GC
-    luaw_set_metatable<Hello>(L, (luaL_Reg[]) {
+    static luaL_Reg reg2[] = {
             { "__tostring", [](lua_State *L) { luaw_push(L, "<HELLO>"); return 1; } },
             {nullptr, nullptr}
-    });
+    };
+    luaw_set_metatable<Hello>(L, reg2);
 
     luaw_push_userdata<Hello>(L, "H3");
     luaw_print_stack(L);

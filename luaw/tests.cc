@@ -15,8 +15,10 @@ using namespace std::string_literals;
 extern "C" {
 #if LUAW == JIT
 # include "../luajit/src/lua.hpp"
+# include "luaw/test-jit.hh"
 #else
 # include "lua.hpp"
+# include "luaw/test-54.hh"
 #endif
 }
 
@@ -278,6 +280,8 @@ int main()
 
     luaw_push(L, hello_f);
     luaw_call(L);
+
+    luaw_do_z(L, (unsigned char *) test_lua_zbytecode, test_lua_len_compressed, test_lua_len_uncompressed);
 
     lua_close(L);
 }

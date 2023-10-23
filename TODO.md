@@ -22,6 +22,6 @@
   - [x] Metatables + print
 - [x] Metatables / UserData / Class table (see push/to/is)
 - [x] To string object (for dump)
-- [ ] Generate zippable bytecode
+- [x] Generate zippable bytecode
 - [ ] Deployment
 - [x] Document

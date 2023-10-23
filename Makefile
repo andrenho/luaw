@@ -28,11 +28,12 @@ libluaw-54.a: luaw/luaw-54.o lua/liblua.a
 	ar -rcv $@ $< tmp54/*.o
 	rm -rf tmp54
 
-check-54: luaw/tests.cc libluaw-54.a
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ $^
-
 luazh-54: luazh/luazh.cc libluaw-54.a
 	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ $^
+
+check-54: luaw/tests.cc libluaw-54.a luazh-54
+	./luazh-54 luazh/test.lua > luaw/test-54.hh
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Ilua -DLUAW=54 -o $@ luaw/tests.cc libluaw-54.a
 
 #
 # libluaw-jit.a
@@ -50,11 +51,12 @@ libluaw-jit.a: luaw/luaw-jit.o luajit/src/libluajit.a
 	ar -rcv $@ $< tmpjit/*.o
 	rm -rf tmpjit
 
-check-jit: luaw/tests.cc libluaw-jit.a
-	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
-
 luazh-jit: luazh/luazh.cc libluaw-jit.a
 	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ $^
+
+check-jit: luaw/tests.cc libluaw-jit.a luazh-jit
+	./luazh-jit luazh/test.lua > luaw/test-jit.hh
+	$(CXX) ${CPPFLAGS} ${LDFLAGS} -Iluajit/src -DLUAW=JIT -o $@ luaw/tests.cc libluaw-jit.a
 
 #
 # other targets
@@ -67,4 +69,4 @@ check: check-54 check-jit
 clean:
 	$(MAKE) -C lua clean
 	$(MAKE) -C luajit clean MACOSX_DEPLOYMENT_TARGET=11.7.10
-	rm -f *.a *.o luaw/*.o libluaw-54.a lubluaw-jit.a check-54 check-jit
+	rm -f *.a *.o luaw/*.o libluaw-54.a lubluaw-jit.a check-54 check-jit luaw/test-*.hh

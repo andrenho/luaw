@@ -53,6 +53,34 @@ T luaw_do<T>(lua_State* L, string code, string env_name="anonymous");
 Execute arbitrary lua code. The first 3 calls will put the result(s) in the stack, the last
 one will return the result as a C++ value.
 
+### Embedding Lua code in a C++ application
+
+The applications `luazh-54` and `luazh-jit` allow for generating a C header containing compressed
+lua bytecode, that can be embedded in the application. The executable can be run as this:
+
+```bash
+./luazh-54 -s test.lua > test.hh      # -s will strip debugging info
+```
+
+This will generate a header that looks like this:
+
+```c++
+#define test_lua_len_compressed 130
+#define test_lua_len_uncompressed 145
+static const unsigned char test_lua_zbytecode[] = { ... };
+```
+
+And it can be loaded with the following function`
+
+```c++
+void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t uncompressed_sz, 
+               int nresults=0, string name="anonymous");
+
+// example usage:
+#include "test.hh"
+luaw_do_z(L, test_lua_zbytecode, test_lua_len_compressed, test_lua_len_uncompressed);
+```
+
 ## Stack management
 
 ```c++

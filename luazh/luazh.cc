@@ -80,7 +80,8 @@ int main(int argc, char* argv[])
 
     // 4. generate headers
 
-    printf("#define %s_len %zu\n", header_name.c_str(), compressed_len);
+    printf("#define %s_len_compressed %zu\n", header_name.c_str(), compressed_len);
+    printf("#define %s_len_uncompressed %zu\n", header_name.c_str(), bytecode_len);
     printf("static const unsigned char %s_zbytecode[] = {\n", header_name.c_str());
     for (size_t i = 0; i < compressed_len; ++i) {
         printf("0x%02x, ", compressed[i]);

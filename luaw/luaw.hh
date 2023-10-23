@@ -29,6 +29,8 @@ void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults=0, std::string
 void luaw_do(lua_State* L, std::string const& buffer, int nresults=0, std::string const& name="anonymous");
 void luaw_dofile(lua_State* L, std::string const& filename, int nresults=0, std::string const& name="anonymous");
 
+void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t uncompressed_sz, int nresults=0, std::string const& name="anonymous");
+
 template <typename T> T luaw_do(lua_State* L, std::string const& buffer, std::string const& name="anonymous");
 
 // dump

@@ -56,18 +56,17 @@ one will return the result as a C++ value.
 
 ### Embedding Lua code in a C++ application
 
-The applications `luazh-54` and `luazh-jit` allow for generating a C header containing compressed
+The applications `luazh-54` and `luazh-jit` allow for generating a C++ header containing compressed
 lua bytecode, that can be embedded in the application. The executable can be run as this:
 
 ```bash
 ./luazh-54 test_lua -s test.lua > test.hh      # -s will strip debugging info
 ```
 
-This will generate a header can be loaded with the following function:
+This will generate a C++ header can be loaded with the following function:
 
 ```c++
-void luaw_do_z(lua_State* L, unsigned char data[], size_t compressed_sz, size_t uncompressed_sz, 
-               int nresults=0, string name="anonymous");
+void luaw_do_z(lua_State* L, LuaCompressedBytecode lcb);
 
 // example usage:
 #include "test.hh"

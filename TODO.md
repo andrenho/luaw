@@ -23,5 +23,6 @@
 - [x] Metatables / UserData / Class table (see push/to/is)
 - [x] To string object (for dump)
 - [x] Generate zippable bytecode
-- [ ] Deployment
+- [x] Deployment
+- [ ] Test on Linux
 - [x] Document

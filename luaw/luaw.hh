@@ -35,7 +35,7 @@ template <typename T> T luaw_do(lua_State* L, std::string const& buffer, std::st
 
 // dump
 
-std::string luaw_dump(lua_State* L, int index, size_t max_depth=3, size_t current_depth=0);
+std::string luaw_dump(lua_State* L, int index, bool pretty_print=true, size_t max_depth=3, size_t current_depth=0);
 std::string luaw_dump_stack(lua_State* L, size_t max_depth=3);
 void luaw_print_stack(lua_State* L, size_t max_depth=3);
 

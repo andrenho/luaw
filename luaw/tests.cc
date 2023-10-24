@@ -287,5 +287,15 @@ int main()
 
     luaw_do_z(L, test);
 
+    luaw_do(L, "return { a={ b={ c={ 48, 13 }, d=12 } }, j=4 }", 1);
+    printf("%s\n", luaw_dump(L, -1, false).c_str());
+    printf("%s\n", luaw_dump(L, -1, true, 10).c_str());
+    lua_pop(L, 1);
+
+    luaw_do(L, "return { 10, 20, 30, 'a' }", 1);
+    printf("%s\n", luaw_dump(L, -1, false).c_str());
+    printf("%s\n", luaw_dump(L, -1, true, 10).c_str());
+    lua_pop(L, 1);
+
     lua_close(L);
 }

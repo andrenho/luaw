@@ -113,39 +113,49 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::s
     luaw_do(L, buffer.str(), nresults, name);
 }
 
-static std::string luaw_dump_table(lua_State* L, int index, size_t max_depth, size_t current_depth)
+static std::string luaw_dump_table(lua_State* L, int index, bool pretty_print, size_t max_depth, size_t current_depth)
 {
     std::string value = luaw_to_string(L, index);
     if (!value.starts_with("table: "))
         return value;
 
     if (current_depth > max_depth)
-        return "...";
+        return "{...}";
 
-    // TODO - also what about metamethods?
     bool found = false;
     std::stringstream ss;
 
+    std::string prefix;
+    if (pretty_print && current_depth > 0)
+        prefix = std::string(current_depth * 2, ' ');
+
     luaw_ipairs(L, index, [&](lua_State* L, int) {
-        ss << luaw_dump(L, -1, max_depth, current_depth) << ", ";
+        ss << luaw_dump(L, -1, pretty_print, max_depth, current_depth) << ", ";
         found = true;
     });
 
-    luaw_spairs(L, index, [&](lua_State* L, std::string key) {
-        ss << key << "=" << luaw_dump(L, -1, max_depth, current_depth) << ", ";
+    bool has_non_numeric_key = false;
+    luaw_spairs(L, index, [&](lua_State* L, std::string const& key) {
+        ss << prefix << key << "=" << luaw_dump(L, -1, pretty_print, max_depth, current_depth) << ", ";
+        if (pretty_print)
+            ss << "\n";
         found = true;
+        has_non_numeric_key = true;
     });
 
     if (found) {
         std::string s = ss.str();
-        return "{ " + s.substr(0, s.length() - 2) + " }";
+        if (pretty_print && has_non_numeric_key)
+            return "{\n" + s.substr(0, s.length() - 2) + "\n" + prefix.substr(0, prefix.length() - 2) + "}";
+        else
+            return "{ " + s.substr(0, s.length() - 2) + " }";
     } else {
         return "{}";
     }
 
 }
 
-std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_depth)
+std::string luaw_dump(lua_State* L, int index, bool pretty_print, size_t max_depth, size_t current_depth)
 {
     switch (lua_type(L, index)) {
         case LUA_TNIL:
@@ -159,11 +169,11 @@ std::string luaw_dump(lua_State* L, int index, size_t max_depth, size_t current_
                 return std::to_string(n);
         }
         case LUA_TBOOLEAN:
-            return lua_toboolean(L, index) ? "true" : "false";
+            return (lua_toboolean(L, index) ? "true" : "false");
         case LUA_TSTRING:
             return "\""s + lua_tostring(L, index) + "\"";
         case LUA_TTABLE:
-            return luaw_dump_table(L, index, max_depth, current_depth + 1);
+            return luaw_dump_table(L, index, pretty_print, max_depth, current_depth + 1);
         case LUA_TFUNCTION:
             return "[&]";
         case LUA_TUSERDATA:
@@ -186,7 +196,7 @@ std::string luaw_dump_stack(lua_State* L, size_t max_depth)
     int sz = lua_gettop(L);
 
     for (int i = sz, j = -1; i > 0; --i, --j) {
-        ss << i << " / " << j << ": " << luaw_dump(L, j, max_depth) << "\n";
+        ss << i << " / " << j << ": " << luaw_dump(L, j, false, max_depth) << "\n";
     }
 
     return ss.str();

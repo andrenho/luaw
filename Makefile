@@ -69,4 +69,4 @@ check: check-54 check-jit
 clean:
 	$(MAKE) -C lua clean
 	$(MAKE) -C luajit clean MACOSX_DEPLOYMENT_TARGET=11.7.10
-	rm -f *.a *.o luaw/*.o libluaw-54.a lubluaw-jit.a check-54 check-jit luaw/test-*.hh
+	rm -f *.a *.o luaw/*.o libluaw-54.a lubluaw-jit.a check-54 check-jit luaw/test-*.hh luazh-jit luazh-54

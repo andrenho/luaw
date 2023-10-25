@@ -28,6 +28,12 @@ int hello_f(lua_State*) {
     return 0;
 }
 
+struct Wrappeable {
+    [[nodiscard]] std::string test() const { return "hello world"; }
+
+    static constexpr const char* mt_identifier = "WRP";
+};
+
 int main()
 {
     lua_State* L = luaw_newstate();
@@ -276,16 +282,12 @@ int main()
 
     // wrapped metadata
 
-    struct Wrappeable {
-        [[nodiscard]] std::string test() const { return "hello world"; }
-    };
-
-    luaw_set_metatable<Wrappeable>(L, {
+    printf("Metatable: '%s'\n", luaw_set_metatable<Wrappeable>(L, {
             { "test", [](lua_State *L) {
                 luaw_push(L, luaw_this<Wrappeable>(L)->test());
                 return 1;
             }},
-    });
+    }).c_str());
 
     auto wptr = std::make_unique<Wrappeable>();
     luaw_push_wrapped_userdata(L, wptr.get());

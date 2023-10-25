@@ -98,12 +98,10 @@ constexpr bool has_mt_identifier = requires(const T& t) {
 
 template <typename T>
 const char* mt_identifier() {
-    if constexpr (has_mt_identifier<T>)
-        return T::mt_identifier;
-    else if constexpr (std::is_pointer_v<T>)
-        return typeid(std::remove_pointer_t<T>).name();
+    if constexpr (has_mt_identifier<std::remove_pointer_t<T>>)
+        return std::remove_pointer_t<T>::mt_identifier;
     else
-        return typeid(T).name();
+        return typeid(std::remove_pointer_t<T>).name();
 }
 
 //
@@ -322,6 +320,7 @@ template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdat
 {
     auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
     wrapped->object = t;
+    printf("%s\n", mt_identifier<T>());
     luaL_setmetatable(L, mt_identifier<T>());
     return 1;
 }

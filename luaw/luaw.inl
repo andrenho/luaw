@@ -320,7 +320,6 @@ template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdat
 {
     auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
     wrapped->object = t;
-    printf("%s\n", mt_identifier<T>());
     luaL_setmetatable(L, mt_identifier<T>());
     return 1;
 }

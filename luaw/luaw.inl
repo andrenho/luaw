@@ -88,6 +88,23 @@ concept ComparableToLua = requires(T t) {
 };
 
 //
+// PRIVATE - metatable identifier
+//
+
+template <typename T>
+constexpr bool has_mt_identifier = requires(const T& t) {
+    { &T::mt_identifier };
+};
+
+template <typename T>
+const char* mt_identifier() {
+    if constexpr (has_mt_identifier<T>)
+        return T::mt_identifier;
+    else
+        return typeid(T).name();
+}
+
+//
 // CODE LOADING
 //
 
@@ -274,7 +291,7 @@ template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args.
     new(t) T(args...);
 
     // get metatable
-    lua_pushstring(L, typeid(T).name());
+    lua_pushstring(L, mt_identifier<T>());
     lua_gettable(L, LUA_REGISTRYINDEX);
     if (!lua_isnil(L, -1)) {
         lua_setmetatable(L, -2);   // apply stored metatable
@@ -282,17 +299,29 @@ template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args.
     } else {
         // metatable not found, create one with only the GC calling the destructor
         lua_pop(L, 1);
-        luaL_newmetatable(L, typeid(T).name());
+        luaL_newmetatable(L, mt_identifier<T>());
         static luaL_Reg destructor_metatable[] {
                 { "__gc", [](lua_State* L) { luaw_to<T*>(L, -1)->~T(); return 0; } },
                 {nullptr, nullptr}
         };
         luaL_setfuncs(L, destructor_metatable, 0);
         lua_pop(L, 1);
-        luaL_setmetatable(L, typeid(T).name());
+        luaL_setmetatable(L, mt_identifier<T>());
     }
 
     return t;
+}
+
+template<typename T> requires std::is_pointer_v<T> void luaw_push_wrapped_userdata(lua_State* L, T t)
+{
+    auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
+    wrapped->object = t;
+    luaL_setmetatable(L, mt_identifier<T>());
+}
+
+template<typename T> T* luaw_this(lua_State* L)
+{
+    return (T*) ((WrappedUserdata *) lua_touserdata(L, 1))->object;
 }
 
 // struct objects
@@ -300,7 +329,7 @@ template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args.
 template <PushableToLua T> void luaw_push(lua_State* L, T const& t)
 {
     t.to_lua(L);
-    luaL_setmetatable(L, typeid(T).name());
+    luaL_setmetatable(L, mt_identifier<T>());
 }
 
 template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)
@@ -475,7 +504,7 @@ void luaw_call_push_field(lua_State* L, int index, std::string const& field, int
 
 template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *reg)
 {
-    luaL_newmetatable(L, typeid(T).name());
+    luaL_newmetatable(L, mt_identifier<T>());
     luaL_setfuncs(L, reg, 0);
     lua_pop(L, 1);
 }

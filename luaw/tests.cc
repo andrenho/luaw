@@ -278,6 +278,27 @@ int main()
     luaw_print_stack(L);
     lua_pop(L, 1);
 
+#if 0
+    // wrapped metadata
+    struct Wrappeable {
+        std::string test() const { return "hello world"; }
+    };
+    static luaL_Reg reg3[] = {
+        { "test", [](lua_State *L) {
+            luaw_push(L, luaw_this<Wrappeable>(L)->test());
+            return 1;
+        }},
+        {nullptr, nullptr}
+    };
+    luaw_set_metatable<Wrappeable>(L, reg3);
+
+    auto wptr = std::make_unique<Wrappeable>();
+    luaw_push_wrapped_userdata(L, wptr.get());
+    lua_setglobal(L, "wptr");
+
+    luaw_do(L, "return wptr:test()");
+#endif
+
     // odds & ends
 
     printf("---------------------\n");

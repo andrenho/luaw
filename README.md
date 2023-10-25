@@ -187,6 +187,8 @@ Example:
 ```c++
 class X {
     std::string to_string() const { return "My class X"; }
+    
+    static const char* mt_identifier = "X";   // optional
 };
 
 luaw_set_metatable<X>(L, (luaL_Reg[]) {
@@ -203,6 +205,10 @@ luaL_set_global(L, "x");
 
 luaw_do(L, "print(x)");            // result: "My class X":w
 ```
+
+If a static field `mt_identifier` is provided in the class, it'll be used as metatable name in Lua.
+This is not mandatory (the class name will be used instead), but it can be useful for managing inherited
+classes.
 
 ## Globals
 

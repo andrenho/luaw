@@ -58,11 +58,9 @@ int luaw_push(lua_State* L, lua_CFunction f);
 
 // userdata
 
-template<typename T, typename... Args>             T*   luaw_push_userdata(lua_State* L, Args... args);
+template<typename T, typename... Args>             T*   luaw_push_new_userdata(lua_State* L, Args... args);
 
 struct WrappedUserdata { void* object; };
-template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdata(lua_State* L, T t);
-template<typename T>                               T*   luaw_this(lua_State* L);
 
 // globals
 

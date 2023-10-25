@@ -154,9 +154,70 @@ template <FloatingType T> int luaw_push(lua_State* L, T const& t) { lua_pushnumb
 template <FloatingType T> bool luaw_is(lua_State* L, int index) { return lua_isnumber(L, index); }
 template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
 
-template <PointerType T> int luaw_push(lua_State* L, T const& t) { lua_pushlightuserdata(L, t); return 1; }
-template <PointerType T> bool luaw_is(lua_State* L, int index) { return lua_isuserdata(L, index); }
-template <PointerType T> T luaw_to(lua_State* L, int index) { return (T) lua_touserdata(L, index); }
+// pointer / userdata
+
+template<typename T, typename... Args> T* luaw_push_new_userdata(lua_State* L, Args... args)
+{
+    T* t = (T*) lua_newuserdata(L, sizeof(T));
+    new(t) T(args...);
+
+    // get metatable
+    lua_pushstring(L, mt_identifier<T>());
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    if (!lua_isnil(L, -1)) {
+        lua_setmetatable(L, -2);   // apply stored metatable
+        // TODO - add GC
+    } else {
+        // metatable not found, create one with only the GC calling the destructor
+        lua_pop(L, 1);
+        luaL_newmetatable(L, mt_identifier<T>());
+        static luaL_Reg destructor_metatable[] {
+                { "__gc", [](lua_State* L) { luaw_to<T*>(L, -1)->~T(); return 0; } },
+                {nullptr, nullptr}
+        };
+        luaL_setfuncs(L, destructor_metatable, 0);
+        lua_pop(L, 1);
+        luaL_setmetatable(L, mt_identifier<T>());
+    }
+
+    return t;
+}
+
+template <PointerType T> int luaw_push(lua_State* L, T const& t)
+{
+    lua_newtable(L);
+    lua_pushlightuserdata(L, t);
+    lua_setfield(L, -2, "__ptr");
+    luaL_setmetatable(L, mt_identifier<T>());
+    return 1;
+}
+
+template <PointerType T> bool luaw_is(lua_State* L, int index)
+{
+    if (lua_isuserdata(L, index))  // TODO - check for specific userdata metatable
+        return true;
+    if (lua_type(L, index) == LUA_TTABLE) {
+        lua_getfield(L, -1, "__ptr");
+        bool is = (lua_type(L, -1) == LUA_TLIGHTUSERDATA);
+        lua_pop(L, 1);
+        return is;
+    }
+    return false;
+}
+
+template <PointerType T> T luaw_to(lua_State* L, int index)
+{
+    if (lua_type(L, index) == LUA_TUSERDATA) {
+        return (T) lua_touserdata(L, index);
+    } else if (lua_type(L, index)) {
+        lua_getfield(L, -1, "__ptr");
+        T ptr = (T) lua_touserdata(L, -1);
+        lua_pop(L, 1);
+        return ptr;
+    } else {
+        throw LuaException(L, "Unexpected type - not a userdata");
+    }
+}
 
 // table (vector, set...)
 
@@ -287,46 +348,6 @@ template <MapType T> T luaw_to(lua_State* L, int index) {
         t[key] = value;
     });
     return t;
-}
-
-template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args... args)
-{
-    T* t = (T*) lua_newuserdata(L, sizeof(T));
-    new(t) T(args...);
-
-    // get metatable
-    lua_pushstring(L, mt_identifier<T>());
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    if (!lua_isnil(L, -1)) {
-        lua_setmetatable(L, -2);   // apply stored metatable
-        // TODO - add GC
-    } else {
-        // metatable not found, create one with only the GC calling the destructor
-        lua_pop(L, 1);
-        luaL_newmetatable(L, mt_identifier<T>());
-        static luaL_Reg destructor_metatable[] {
-                { "__gc", [](lua_State* L) { luaw_to<T*>(L, -1)->~T(); return 0; } },
-                {nullptr, nullptr}
-        };
-        luaL_setfuncs(L, destructor_metatable, 0);
-        lua_pop(L, 1);
-        luaL_setmetatable(L, mt_identifier<T>());
-    }
-
-    return t;
-}
-
-template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdata(lua_State* L, T t)
-{
-    auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
-    wrapped->object = t;
-    luaL_setmetatable(L, mt_identifier<T>());
-    return 1;
-}
-
-template<typename T> T* luaw_this(lua_State* L)
-{
-    return (T*) ((WrappedUserdata *) lua_touserdata(L, 1))->object;
 }
 
 // struct objects

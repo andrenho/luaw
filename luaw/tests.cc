@@ -76,6 +76,7 @@ int main()
     dump("42.8");
     dump("true");
     dump("false");
+    dump("'string'");
     dump("function() end");
     dump("{ a=4, 'b', { 'c', 'd' } }");
 
@@ -261,7 +262,7 @@ int main()
         int x = 8;
     };
 
-    Hello* hh = luaw_push_userdata<Hello>(L, "WORLD");
+    Hello* hh = luaw_push_new_userdata<Hello>(L, "WORLD");
     printf("%d\n", hh->x);
     hh->x = 7;
 
@@ -276,7 +277,7 @@ int main()
           { "__tostring", [](lua_State *L) { luaw_push(L, "<HELLO>"); return 1; } }
     });
 
-    luaw_push_userdata<Hello>(L, "H3");
+    luaw_push_new_userdata<Hello>(L, "H3");
     luaw_print_stack(L);
     lua_pop(L, 1);
 
@@ -284,16 +285,19 @@ int main()
 
     printf("Metatable: '%s'\n", luaw_set_metatable<Wrappeable>(L, {
             { "test", [](lua_State *L) {
-                luaw_push(L, luaw_this<Wrappeable>(L)->test());
+                luaw_push(L, luaw_to<Wrappeable*>(L, 1)->test());
                 return 1;
             }},
     }).c_str());
 
     auto wptr = std::make_unique<Wrappeable>();
-    luaw_push_wrapped_userdata(L, wptr.get());
+    luaw_push(L, wptr.get());
 
     lua_setglobal(L, "wptr");
     luaw_do(L, "print(wptr:test())");
+
+    luaw_do(L, "function test(obj) print(obj:test()) end");
+    luaw_call_global(L, "test", wptr.get());
 
     // odds & ends
 

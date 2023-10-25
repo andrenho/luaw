@@ -145,7 +145,7 @@ printf("%d", mp.x);               // result: 30
 ### Custom C++ classes as Lua userdata
 
 ```c++
-void luaw_push_userdata<T>(lua_State* L, ConstructorArgs...);
+void luaw_push_new_userdata<T>(lua_State* L, ConstructorArgs...);
 ```
 
 Custom C++ can be added to Lua as userdata. In this case, Lua itself will manage the object memory.
@@ -161,7 +161,7 @@ struct MyStruct {
 };
 
 lua_State* L = luaw_newstate();
-luaw_push_userdata<MyStruct>(L, 42);      // "Constructor called"
+luaw_push_new_userdata<MyStruct>(L, 42);      // "Constructor called"
 
 MyStruct* my_obj = luaw_to<MyStruct*>(L, -1);
 int x = my_obj->x;                        // x = 42
@@ -200,7 +200,7 @@ luaw_set_metatable<X>(L, (luaL_Reg[]) {
     { nullptr, nullptr }
 });
 
-luaw_push_userdata<X>(L);
+luaw_push_new_userdata<X>(L);
 luaL_set_global(L, "x");
 
 luaw_do(L, "print(x)");            // result: "My class X":w

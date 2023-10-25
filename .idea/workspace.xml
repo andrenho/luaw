@@ -23,6 +23,8 @@
   <component name="ChangeListManager">
     <list default="true" id="62ba0f94-4a22-48f7-b3cb-a2d0bebe1705" name="Changes" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/luaw/luaw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/luaw/luaw.inl" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/luaw.inl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/luaw/tests.cc" beforeDir="false" afterPath="$PROJECT_DIR$/luaw/tests.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -111,7 +113,7 @@
       <recent name="$PROJECT_DIR$/luaw" />
     </key>
   </component>
-  <component name="RunManager" selected="Makefile Application.check-54">
+  <component name="RunManager" selected="Makefile Application.check-jit">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -199,7 +201,7 @@
       <workItem from="1698152919443" duration="276000" />
       <workItem from="1698158788631" duration="266000" />
       <workItem from="1698159092524" duration="626000" />
-      <workItem from="1698242644047" duration="4852000" />
+      <workItem from="1698242644047" duration="8153000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />
@@ -585,7 +587,15 @@
       <option name="project" value="LOCAL" />
       <updated>1698246102072</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary=".">
+      <option name="closed" value="true" />
+      <created>1698247994017</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1698247994017</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -602,16 +612,6 @@
           <url>file://$PROJECT_DIR$/luajit/src/lua.h</url>
           <line>193</line>
           <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/luaw/luaw.inl</url>
-          <line>316</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/luaw/luaw.inl</url>
-          <line>506</line>
-          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

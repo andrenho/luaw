@@ -100,6 +100,8 @@ template <typename T>
 const char* mt_identifier() {
     if constexpr (has_mt_identifier<T>)
         return T::mt_identifier;
+    else if constexpr (std::is_pointer_v<T>)
+        return typeid(std::remove_pointer_t<T>).name();
     else
         return typeid(T).name();
 }
@@ -316,7 +318,9 @@ template<typename T> requires std::is_pointer_v<T> void luaw_push_wrapped_userda
 {
     auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
     wrapped->object = t;
-    luaL_setmetatable(L, mt_identifier<T>());
+    std::string mt = mt_identifier<T>();
+    printf("%s\n", mt.c_str());
+    luaL_setmetatable(L, mt_identifier<T&>());
 }
 
 template<typename T> T* luaw_this(lua_State* L)
@@ -502,10 +506,23 @@ void luaw_call_push_field(lua_State* L, int index, std::string const& field, int
 // METATABLE
 //
 
-template<typename T> void luaw_set_metatable(lua_State* L, const luaL_Reg *reg)
+template<typename T> void luaw_set_metatable(lua_State* L, LuaMetatable const& mt)
 {
+    luaL_Reg regs[mt.size() + 1];
+    size_t i = 0;
+    for (auto const& kv : mt) {
+        regs[i] = (luaL_Reg) { kv.first.c_str(), kv.second };
+    }
+    regs[mt.size()] = {nullptr, nullptr};
+
+    std::string mts = mt_identifier<T>();
+    printf("%s\n", mts.c_str());
+
     luaL_newmetatable(L, mt_identifier<T>());
-    luaL_setfuncs(L, reg, 0);
+    luaL_setfuncs(L, regs, 0);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+
     lua_pop(L, 1);
 }
 

@@ -228,14 +228,12 @@ int main()
         [[nodiscard]] std::string to_str() const { return "<"s + std::to_string(x) + "," + std::to_string(y) + ">"; }
     };
 
-    static luaL_Reg reg[] {
+    luaw_set_metatable<Point>(L, {
             { "__tostring", [](lua_State *L) {
                 luaw_push(L, luaw_to<Point>(L, 1).to_str());
                 return 1;
             } },
-            {nullptr, nullptr}
-    };
-    luaw_set_metatable<Point>(L, reg);
+    });
 
     luaw_setglobal(L, "pt1", Point { 3, 4 });
     assert(luaw_do<int>(L, "return pt1.x") == 3);
@@ -268,11 +266,9 @@ int main()
     luaw_ensure(L);
 
     // userdata override GC
-    static luaL_Reg reg2[] = {
-            { "__tostring", [](lua_State *L) { luaw_push(L, "<HELLO>"); return 1; } },
-            {nullptr, nullptr}
-    };
-    luaw_set_metatable<Hello>(L, reg2);
+    luaw_set_metatable<Hello>(L, {
+          { "__tostring", [](lua_State *L) { luaw_push(L, "<HELLO>"); return 1; } }
+    });
 
     luaw_push_userdata<Hello>(L, "H3");
     luaw_print_stack(L);
@@ -281,21 +277,26 @@ int main()
     // wrapped metadata
 
     struct Wrappeable {
-        std::string test() const { return "hello world"; }
+        [[nodiscard]] std::string test() const { return "hello world"; }
     };
-    static luaL_Reg reg3[] = {
-        { "test", [](lua_State *L) {
-            luaw_push(L, luaw_this<Wrappeable>(L)->test());
-            return 1;
-        }},
-        {nullptr, nullptr}
-    };
-    luaw_set_metatable<Wrappeable>(L, reg3);
+
+    luaw_set_metatable<Wrappeable>(L, {
+            { "test", [](lua_State *L) {
+                luaw_push(L, luaw_this<Wrappeable>(L)->test());
+                return 1;
+            }},
+    });
 
     auto wptr = std::make_unique<Wrappeable>();
     luaw_push_wrapped_userdata(L, wptr.get());
     lua_setglobal(L, "wptr");
 
+    /*
+    luaw_do(L, "print(wptr)");
+    luaw_do(L, "print(getmetatable(wptr))");
+    luaw_do(L, "print(getmetatable(wptr).__index)");
+    luaw_do(L, "print(getmetatable(wptr).__index.test)");
+     */
     luaw_do(L, "return wptr:test()");
 
     // odds & ends

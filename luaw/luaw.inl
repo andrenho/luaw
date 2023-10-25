@@ -141,7 +141,7 @@ template <typename T> T luaw_pop(lua_State* L)
 
 // integer
 
-template <IntegerType T> void luaw_push(lua_State* L, T const& t) { lua_pushinteger(L, t); }
+template <IntegerType T> int luaw_push(lua_State* L, T const& t) { lua_pushinteger(L, t); return 1; }
 template <IntegerType T> bool luaw_is(lua_State* L, int index) {
     if (!lua_isnumber(L, index))
         return false;
@@ -152,23 +152,24 @@ template <IntegerType T> T luaw_to(lua_State* L, int index) { return (T) lua_toi
 
 // number
 
-template <FloatingType T> void luaw_push(lua_State* L, T const& t) { lua_pushnumber(L, t); }
+template <FloatingType T> int luaw_push(lua_State* L, T const& t) { lua_pushnumber(L, t); return 1; }
 template <FloatingType T> bool luaw_is(lua_State* L, int index) { return lua_isnumber(L, index); }
 template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
 
-template <PointerType T> void luaw_push(lua_State* L, T const& t) { lua_pushlightuserdata(L, t); }
+template <PointerType T> int luaw_push(lua_State* L, T const& t) { lua_pushlightuserdata(L, t); return 1; }
 template <PointerType T> bool luaw_is(lua_State* L, int index) { return lua_isuserdata(L, index); }
 template <PointerType T> T luaw_to(lua_State* L, int index) { return (T) lua_touserdata(L, index); }
 
 // table (vector, set...)
 
-template <Iterable T> void luaw_push(lua_State* L, T const& t) {
+template <Iterable T> int luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
     int i = 1;
     for (auto const& v : t) {
         luaw_push(L, v);
         lua_rawseti(L, -2, i++);
     }
+    return 1;
 }
 template <Iterable T> bool luaw_is(lua_State* L, int index) { return lua_istable(L, index); }
 template <Iterable T> T luaw_to(lua_State* L, int index) {
@@ -185,11 +186,12 @@ template <Iterable T> T luaw_to(lua_State* L, int index) {
 
 // optional
 
-template <Optional T> void luaw_push(lua_State* L, T const& t) {
+template <Optional T> int luaw_push(lua_State* L, T const& t) {
     if (t.has_value())
         luaw_push<typename T::value_type>(L, *t);
     else
         lua_pushnil(L);
+    return 1;
 }
 template <Optional T> bool luaw_is(lua_State* L, int index) {
     return lua_isnil(L, index) || luaw_is<T::value_type>(L, index);
@@ -203,10 +205,11 @@ template <Optional T> T luaw_to(lua_State* L, int index) {
 
 // tuple
 
-template <Tuple T> void luaw_push(lua_State* L, T const& t) {
+template <Tuple T> int luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
     int i = 1;
     std::apply([L, &i](auto&&... args) { ((luaw_push(L, args), lua_rawseti(L, -2, i++)), ...); }, t);
+    return 1;
 }
 
 template <typename T, std::size_t I = 0>
@@ -251,13 +254,14 @@ template <Tuple T> T luaw_to(lua_State* L, int index)
 
 // map
 
-template <MapType T> void luaw_push(lua_State* L, T const& t) {
+template <MapType T> int luaw_push(lua_State* L, T const& t) {
     lua_newtable(L);
     for (auto const& kv: t) {
         luaw_push(L, kv.first);
         luaw_push(L, kv.second);
         lua_rawset(L, -3);
     }
+    return 1;
 }
 
 template <MapType T> bool luaw_is(lua_State* L, int index) {
@@ -314,11 +318,12 @@ template<typename T, typename... Args> T* luaw_push_userdata(lua_State* L, Args.
     return t;
 }
 
-template<typename T> requires std::is_pointer_v<T> void luaw_push_wrapped_userdata(lua_State* L, T t)
+template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdata(lua_State* L, T t)
 {
     auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
     wrapped->object = t;
     luaL_setmetatable(L, mt_identifier<T>());
+    return 1;
 }
 
 template<typename T> T* luaw_this(lua_State* L)
@@ -328,10 +333,11 @@ template<typename T> T* luaw_this(lua_State* L)
 
 // struct objects
 
-template <PushableToLua T> void luaw_push(lua_State* L, T const& t)
+template <PushableToLua T> int luaw_push(lua_State* L, T const& t)
 {
     t.to_lua(L);
     luaL_setmetatable(L, mt_identifier<T>());
+    return 1;
 }
 
 template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)
@@ -351,7 +357,7 @@ template <ComparableToLua T> bool luaw_is(lua_State*L, int index)
 // variant
 
 template <typename... Types>
-void luaw_push(lua_State* L, std::variant<Types...> const& t) {
+int luaw_push(lua_State* L, std::variant<Types...> const& t) {
     std::visit([&](auto&& arg) {
         using T = std::decay_t<decltype(arg)>;
         luaw_push<T>(L, arg);
@@ -480,31 +486,34 @@ template <typename T> T luaw_call_field(lua_State* L, int index, std::string con
     return luaw_call<T>(L, args...);
 }
 
-void luaw_call_push(lua_State* L, int nresults, auto&... args)
+int luaw_call_push(lua_State* L, int nresults, auto&... args)
 {
     ([&] { luaw_push(L, args); } (), ...);
     lua_call(L, sizeof...(args), nresults);
+    return nresults;
 }
 
-void luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args)
+int luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args)
 {
     lua_getglobal(L, global.c_str());
     ([&] { luaw_push(L, args); } (), ...);
     lua_call(L, sizeof...(args), nresults);
+    return nresults;
 }
 
-void luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args)
+int luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args)
 {
     luaw_getfield(L, index, field);
     ([&] { luaw_push(L, args); } (), ...);
     lua_call(L, sizeof...(args), nresults);
+    return nresults;
 }
 
 //
 // METATABLE
 //
 
-template<typename T> void luaw_set_metatable(lua_State* L, LuaMetatable const& mt)
+template<typename T> std::string luaw_set_metatable(lua_State* L, LuaMetatable const& mt)
 {
     luaL_Reg regs[mt.size() + 1];
     size_t i = 0;
@@ -519,6 +528,8 @@ template<typename T> void luaw_set_metatable(lua_State* L, LuaMetatable const& m
     lua_setfield(L, -2, "__index");
 
     lua_pop(L, 1);
+
+    return mt_identifier<T>();
 }
 
 #endif //LUA_INL_

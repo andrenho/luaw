@@ -47,21 +47,21 @@ int luaw_len(lua_State* L, int index);
 
 // stack management
 
-template <typename T> void luaw_push(lua_State* L, T const& t);
-template <typename T> void luaw_push(lua_State* L, T const* t);
+template <typename T> int luaw_push(lua_State* L, T const& t);
+template <typename T> int luaw_push(lua_State* L, T const* t);
 template <typename T> bool luaw_is(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index, T const& default_);
 template <typename T> T luaw_pop(lua_State* L);
 
-void luaw_push(lua_State* L, lua_CFunction f);
+int luaw_push(lua_State* L, lua_CFunction f);
 
 // userdata
 
 template<typename T, typename... Args>             T*   luaw_push_userdata(lua_State* L, Args... args);
 
 struct WrappedUserdata { void* object; };
-template<typename T> requires std::is_pointer_v<T> void luaw_push_wrapped_userdata(lua_State* L, T t);
+template<typename T> requires std::is_pointer_v<T> int luaw_push_wrapped_userdata(lua_State* L, T t);
 template<typename T>                               T*   luaw_this(lua_State* L);
 
 // globals
@@ -90,14 +90,14 @@ template <typename T=nullptr_t> T luaw_call(lua_State* L, auto&&... args);
 template <typename T=nullptr_t> T luaw_call_global(lua_State* L, std::string const& global, auto&&... args);
 template <typename T=nullptr_t> T luaw_call_field(lua_State* L, int index, std::string const& field, auto&&... args);
 
-void luaw_call_push(lua_State* L, int nresults, auto&&... args);
-void luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args);
-void luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args);
+int luaw_call_push(lua_State* L, int nresults, auto&&... args);
+int luaw_call_push_global(lua_State* L, std::string const& global, int nresults, auto&&... args);
+int luaw_call_push_field(lua_State* L, int index, std::string const& field, int nresults, auto&&... args);
 
 // metatables
 
 using LuaMetatable = std::map<std::string, lua_CFunction>;
-template<typename T> void luaw_set_metatable(lua_State* L, LuaMetatable const& mt);
+template<typename T> std::string luaw_set_metatable(lua_State* L, LuaMetatable const& mt);
 
 // other
 

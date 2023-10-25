@@ -318,9 +318,7 @@ template<typename T> requires std::is_pointer_v<T> void luaw_push_wrapped_userda
 {
     auto wrapped = (WrappedUserdata *) lua_newuserdata(L, sizeof(WrappedUserdata));
     wrapped->object = t;
-    std::string mt = mt_identifier<T>();
-    printf("%s\n", mt.c_str());
-    luaL_setmetatable(L, mt_identifier<T&>());
+    luaL_setmetatable(L, mt_identifier<T>());
 }
 
 template<typename T> T* luaw_this(lua_State* L)
@@ -514,9 +512,6 @@ template<typename T> void luaw_set_metatable(lua_State* L, LuaMetatable const& m
         regs[i] = (luaL_Reg) { kv.first.c_str(), kv.second };
     }
     regs[mt.size()] = {nullptr, nullptr};
-
-    std::string mts = mt_identifier<T>();
-    printf("%s\n", mts.c_str());
 
     luaL_newmetatable(L, mt_identifier<T>());
     luaL_setfuncs(L, regs, 0);

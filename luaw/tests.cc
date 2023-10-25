@@ -289,15 +289,9 @@ int main()
 
     auto wptr = std::make_unique<Wrappeable>();
     luaw_push_wrapped_userdata(L, wptr.get());
-    lua_setglobal(L, "wptr");
 
-    /*
-    luaw_do(L, "print(wptr)");
-    luaw_do(L, "print(getmetatable(wptr))");
-    luaw_do(L, "print(getmetatable(wptr).__index)");
-    luaw_do(L, "print(getmetatable(wptr).__index.test)");
-     */
-    luaw_do(L, "return wptr:test()");
+    lua_setglobal(L, "wptr");
+    luaw_do(L, "print(wptr:test())");
 
     // odds & ends
 

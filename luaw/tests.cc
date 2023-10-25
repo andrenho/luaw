@@ -278,8 +278,8 @@ int main()
     luaw_print_stack(L);
     lua_pop(L, 1);
 
-#if 0
     // wrapped metadata
+
     struct Wrappeable {
         std::string test() const { return "hello world"; }
     };
@@ -297,7 +297,6 @@ int main()
     lua_setglobal(L, "wptr");
 
     luaw_do(L, "return wptr:test()");
-#endif
 
     // odds & ends
 

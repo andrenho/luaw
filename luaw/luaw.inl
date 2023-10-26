@@ -369,7 +369,6 @@ template <PushableToLua T> int luaw_push(lua_State* L, T const& t)
 
 template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)
 {
-    luaL_checktype(L, index, LUA_TTABLE);
     return T::from_lua(L, index);
 }
 

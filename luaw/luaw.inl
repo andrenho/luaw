@@ -126,6 +126,13 @@ template <typename T> T luaw_to(lua_State* L, int index, T const& default_)
         return luaw_to<T>(L, index);
 }
 
+template <typename T> T luaw_to_check(lua_State* L, int index, auto&&... args)
+{
+    if (luaw_is<T>(L, index))
+        luaL_error(L, "Type unexpected");
+    return luaw_to<T>(L, index, args...);
+}
+
 template <typename T> T luaw_pop(lua_State* L)
 {
     T t = (T) luaw_to<T>(L, -1);
@@ -215,7 +222,8 @@ template <PointerType T> T luaw_to(lua_State* L, int index)
         lua_pop(L, 1);
         return ptr;
     } else {
-        throw LuaException(L, "Unexpected type - not a userdata");
+        luaL_error(L, "Unexpected type - not a userdata");
+        return nullptr;
     }
 }
 

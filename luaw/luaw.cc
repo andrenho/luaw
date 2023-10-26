@@ -68,20 +68,20 @@ void luaw_do(lua_State* L, uint8_t* data, size_t sz, int nresults, std::string c
     if (r == LUA_ERRSYNTAX) {
         std::string msg = "Syntax error: "s + lua_tostring(L, -1);
         lua_pop(L, 1);
-        throw LuaException(L, msg);
+        luaL_error(L, msg.c_str());
     } else if (r == LUA_ERRMEM) {
-        throw LuaException(L, "Memory error");
+        luaL_error(L, "Memory error");
     }
 
     r = lua_pcall(L, 0, nresults, 0);
     if (r == LUA_ERRRUN) {
         std::string msg = "Runtime error: "s + lua_tostring(L, -1);
         lua_pop(L, 1);
-        throw LuaException(L, msg);
+        luaL_error(L, msg.c_str());
     } else if (r == LUA_ERRMEM) {
-        throw LuaException(L, "Runtime memory error");
+        luaL_error(L, "Runtime memory error");
     } else if (r == LUA_ERRERR){
-        throw LuaException(L, "Error running the error message handler");
+        luaL_error(L, "Error running the error message handler");
     }
 }
 
@@ -107,7 +107,7 @@ void luaw_dofile(lua_State* L, std::string const& filename, int nresults, std::s
 {
     std::ifstream f(filename);
     if (!f.good())
-        throw LuaException(L, "Could not open file '" + filename + "'");
+        luaL_error(L, "Could not open file '%s'", filename.c_str());
     std::stringstream buffer;
     buffer << f.rdbuf();
     luaw_do(L, buffer.str(), nresults, name);
@@ -186,7 +186,8 @@ std::string luaw_dump(lua_State* L, int index, bool pretty_print, size_t max_dep
             return buf;
         }
         default:
-            throw LuaException(L, "Invalid lua type");
+            luaL_error(L, "Invalid lua type");
+            return "";
     }
 }
 
@@ -210,8 +211,7 @@ void luaw_print_stack(lua_State* L, size_t max_depth)
 void luaw_ensure(lua_State* L, int expected_sz)
 {
     if (lua_gettop(L) != expected_sz)
-        throw LuaException(L, "Stack size expected " + std::to_string(expected_sz) + ", but found to be " + std::to_string(
-                lua_gettop(L)));
+        luaL_error(L, "Stack size expected to be %d, but found to be %d", expected_sz, lua_gettop(L));
 }
 
 int luaw_len(lua_State* L, int index)
@@ -257,7 +257,7 @@ void luaw_getfield(lua_State* L, int index, std::string const& field)
         int type = lua_type(L, -1);
         if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
             lua_settop(L, top);
-            throw LuaException(L, "Field " + field + " not found.");
+            luaL_error(L, "Field '%s' not found.", field.c_str());
         }
         ++levels;
     }
@@ -307,7 +307,7 @@ void luaw_setfield(lua_State* L, int index, std::string const& field)
         int type = lua_type(L, -1);
         if (type == LUA_TNIL || (iss.peek() != EOF /* is not last */ && type != LUA_TTABLE)) {
             lua_settop(L, top);
-            throw LuaException(L, "Field " + field + " not found.");
+            luaL_error(L, "Field '%s' not found.", field.c_str());
         }
         ++levels;
     }

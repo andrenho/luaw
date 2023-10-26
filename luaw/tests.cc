@@ -48,19 +48,10 @@ int main()
 
     luaw_do(L, "print('luaw_do string ok!')");
 
-    try {
-        luaw_do(L, "print(");
-        assert(false);
-    } catch (LuaException& e) {
-        // printf("expected error: %s\n", e.what());
-    }
-
-    try {
-        luaw_do(L, "print(a[1])");
-        assert(false);
-    } catch (LuaException& e) {
-        // printf("expected error: %s\n", e.what());
-    }
+    /*
+    luaw_do(L, "print(");
+    luaw_do(L, "print(a[1])");
+     */
 
     // luaw_dump
 

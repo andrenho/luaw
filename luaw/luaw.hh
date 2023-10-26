@@ -16,12 +16,6 @@ extern "C" {
 #endif
 }
 
-class LuaException : public std::runtime_error {
-public:
-    LuaException(lua_State* L, std::string const& what) : std::runtime_error(what), L(L) {}
-    lua_State* L;
-};
-
 lua_State* luaw_newstate();
 
 // file loading
@@ -53,6 +47,8 @@ template <typename T> bool luaw_is(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index, T const& default_);
 template <typename T> T luaw_pop(lua_State* L);
+
+template <typename T> T luaw_to_check(lua_State* L, int index, auto&&...);
 
 int luaw_push(lua_State* L, lua_CFunction f);
 

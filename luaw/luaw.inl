@@ -545,9 +545,9 @@ template<typename T> std::string luaw_set_metatable(lua_State* L, LuaMetatable c
     luaL_Reg regs[mt.size() + 1];
     size_t i = 0;
     for (auto const& kv : mt) {
-        regs[i] = (luaL_Reg) { kv.first.c_str(), kv.second };
+        regs[i++] = (luaL_Reg) { kv.first.c_str(), kv.second };
     }
-    regs[mt.size()] = {nullptr, nullptr};
+    regs[i] = {nullptr, nullptr};
 
     luaL_newmetatable(L, mt_identifier<T>());
     luaL_setfuncs(L, regs, 0);

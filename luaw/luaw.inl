@@ -204,7 +204,7 @@ template <PointerType T> bool luaw_is(lua_State* L, int index)
     if (lua_isuserdata(L, index))  // TODO - check for specific userdata metatable
         return true;
     if (lua_type(L, index) == LUA_TTABLE) {
-        lua_getfield(L, -1, "__ptr");
+        lua_getfield(L, index, "__ptr");
         bool is = (lua_type(L, -1) == LUA_TLIGHTUSERDATA);
         lua_pop(L, 1);
         return is;
@@ -217,7 +217,7 @@ template <PointerType T> T luaw_to(lua_State* L, int index)
     if (lua_type(L, index) == LUA_TUSERDATA) {
         return (T) lua_touserdata(L, index);
     } else if (lua_type(L, index)) {
-        lua_getfield(L, -1, "__ptr");
+        lua_getfield(L, index, "__ptr");
         T ptr = (T) lua_touserdata(L, -1);
         lua_pop(L, 1);
         return ptr;

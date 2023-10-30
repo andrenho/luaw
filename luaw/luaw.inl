@@ -126,11 +126,12 @@ template <typename T> T luaw_to(lua_State* L, int index, T const& default_)
         return luaw_to<T>(L, index);
 }
 
-template <typename T> T luaw_to_check(lua_State* L, int index, auto&&... args)
+template <typename T> T luaw_to(lua_State* L, int index)
 {
-    if (luaw_is<T>(L, index))
-        luaL_error(L, "Type unexpected");
-    return luaw_to<T>(L, index, args...);
+    if (!luaw_is<T>(L, index))
+        luaL_error(L, "Type unexpected (expected C++ type `%s` (mangled), actual lua type is `%s`)",
+                   typeid(T).name(), lua_typename(L, lua_type(L, index)));
+    return luaw_to_<T>(L, index);
 }
 
 template <typename T> T luaw_pop(lua_State* L)
@@ -153,13 +154,13 @@ template <IntegerType T> bool luaw_is(lua_State* L, int index) {
     else
         return lua_tointeger(L, index) == lua_tointeger(L, index);
 }
-template <IntegerType T> T luaw_to(lua_State* L, int index) { return (T) lua_tointeger(L, index); }
+template <IntegerType T> T luaw_to_(lua_State* L, int index) { return (T) lua_tointeger(L, index); }
 
 // number
 
 template <FloatingType T> int luaw_push(lua_State* L, T const& t) { lua_pushnumber(L, t); return 1; }
 template <FloatingType T> bool luaw_is(lua_State* L, int index) { return lua_isnumber(L, index); }
-template <FloatingType T> T luaw_to(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
+template <FloatingType T> T luaw_to_(lua_State* L, int index) { return (T) lua_tonumber(L, index); }
 
 // pointer / userdata
 
@@ -212,7 +213,7 @@ template <PointerType T> bool luaw_is(lua_State* L, int index)
     return false;
 }
 
-template <PointerType T> T luaw_to(lua_State* L, int index)
+template <PointerType T> T luaw_to_(lua_State* L, int index)
 {
     if (lua_type(L, index) == LUA_TUSERDATA) {
         return (T) lua_touserdata(L, index);
@@ -239,7 +240,7 @@ template <Iterable T> int luaw_push(lua_State* L, T const& t) {
     return 1;
 }
 template <Iterable T> bool luaw_is(lua_State* L, int index) { return lua_istable(L, index); }
-template <Iterable T> T luaw_to(lua_State* L, int index) {
+template <Iterable T> T luaw_to_(lua_State* L, int index) {
     luaL_checktype(L, index, LUA_TTABLE);
     T ts;
     int sz = luaw_len(L, index);
@@ -261,9 +262,9 @@ template <Optional T> int luaw_push(lua_State* L, T const& t) {
     return 1;
 }
 template <Optional T> bool luaw_is(lua_State* L, int index) {
-    return lua_isnil(L, index) || luaw_is<T::value_type>(L, index);
+    return lua_isnil(L, index) || luaw_is<typename T::value_type>(L, index);
 }
-template <Optional T> T luaw_to(lua_State* L, int index) {
+template <Optional T> T luaw_to_(lua_State* L, int index) {
     if (lua_isnil(L, index))
         return T {};
     else
@@ -312,7 +313,7 @@ static void tuple_element_set(lua_State* L, int index, T& t)
     }
 }
 
-template <Tuple T> T luaw_to(lua_State* L, int index)
+template <Tuple T> T luaw_to_(lua_State* L, int index)
 {
     T t;
     tuple_element_set<T>(L, index, t);
@@ -339,7 +340,7 @@ template <MapType T> bool luaw_is(lua_State* L, int index) {
         while (lua_next(L, -2) != 0) {
             if (!luaw_is<typename T::key_type>(L, -2))
                 is = false;
-            if (!luaw_is<typename T::value_type>(L, -1))
+            if (!luaw_is<typename T::mapped_type>(L, -1))
                 is = false;
             lua_pop(L, 1);
         }
@@ -348,7 +349,7 @@ template <MapType T> bool luaw_is(lua_State* L, int index) {
     return is;
 }
 
-template <MapType T> T luaw_to(lua_State* L, int index) {
+template <MapType T> T luaw_to_(lua_State* L, int index) {
     T t;
     luaw_pairs(L, index, [&t](lua_State* L) {
         auto key = luaw_to<typename T::key_type>(L, -2);
@@ -367,7 +368,7 @@ template <PushableToLua T> int luaw_push(lua_State* L, T const& t)
     return 1;
 }
 
-template <ConvertibleToLua T> T luaw_to(lua_State* L, int index)
+template <ConvertibleToLua T> T luaw_to_(lua_State* L, int index)
 {
     return T::from_lua(L, index);
 }

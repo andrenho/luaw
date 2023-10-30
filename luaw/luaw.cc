@@ -225,19 +225,19 @@ int luaw_len(lua_State* L, int index)
 
 template<> int luaw_push<bool>(lua_State* L, bool const& t) { lua_pushboolean(L, t); return 1; }
 template<> bool luaw_is<bool>(lua_State* L, int index) { return lua_isboolean(L, index); }
-template<> bool luaw_to(lua_State* L, int index) { return lua_toboolean(L, index); }
+template<> bool luaw_to_(lua_State* L, int index) { return lua_toboolean(L, index); }
 
 template<nullptr_t> int luaw_push(lua_State* L, [[maybe_unused]] nullptr_t const& t=nullptr) { lua_pushnil(L); return 1; }
 template<> bool luaw_is<nullptr_t>(lua_State* L, int index) { return lua_isnil(L, index); }
-template<> nullptr_t luaw_to([[maybe_unused]] lua_State* L, [[maybe_unused]] int index) { return nullptr; }
+template<> nullptr_t luaw_to_([[maybe_unused]] lua_State* L, [[maybe_unused]] int index) { return nullptr; }
 
 template<> int luaw_push(lua_State* L, std::string const& t) { lua_pushstring(L, t.c_str()); return 1; }
 template<> bool luaw_is<std::string>(lua_State* L, int index) { return lua_isstring(L, index); }
-template<> std::string luaw_to<std::string>(lua_State* L, int index) { return lua_tostring(L, index); }
+template<> std::string luaw_to_<std::string>(lua_State* L, int index) { return lua_tostring(L, index); }
 
 template<> int luaw_push(lua_State* L, const char* t) { lua_pushstring(L, t); return 1; }
 template<> bool luaw_is<const char*>(lua_State* L, int index) { return lua_isstring(L, index); }
-template<> const char* luaw_to<const char*>(lua_State* L, int index) { return lua_tostring(L, index); }
+template<> const char* luaw_to_<const char*>(lua_State* L, int index) { return lua_tostring(L, index); }
 
 template<> int luaw_push(lua_State* L, lua_CFunction const& f) { lua_pushcfunction(L, f); return 1; }
 int luaw_push(lua_State* L, lua_CFunction f) { lua_pushcfunction(L, f); return 1; }

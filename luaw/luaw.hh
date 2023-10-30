@@ -48,7 +48,7 @@ template <typename T> T luaw_to(lua_State* L, int index);
 template <typename T> T luaw_to(lua_State* L, int index, T const& default_);
 template <typename T> T luaw_pop(lua_State* L);
 
-template <typename T> T luaw_to_check(lua_State* L, int index, auto&&...);
+template <typename T> T luaw_to_(lua_State* L, int index);  // TODO
 
 int luaw_push(lua_State* L, lua_CFunction f);
 

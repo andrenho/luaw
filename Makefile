@@ -5,7 +5,7 @@ LDFLAGS := `pkg-config --libs zlib`
 CXX = g++
 
 ifdef DEBUG
-	CPPFLAGS += -O0 -Og -ggdb
+	CPPFLAGS += -Og -g3
 else
 	CPPFLAGS += -Ofast
 endif

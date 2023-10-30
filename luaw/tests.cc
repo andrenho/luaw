@@ -127,6 +127,7 @@ int main()
     std::map<std::string, int> mp { { "hello", 42 }, { "world", 18 } };
     luaw_push(L, mp);
     printf("%s\n", luaw_dump(L, -1).c_str());
+    luaw_is<std::map<std::string, int>>(L, -1);
     assert(luaw_pop<decltype(mp)>(L) == mp);
 
     /*

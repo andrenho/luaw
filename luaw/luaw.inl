@@ -375,8 +375,6 @@ template <ConvertibleToLua T> T luaw_to_(lua_State* L, int index)
 
 template <ComparableToLua T> bool luaw_is(lua_State*L, int index)
 {
-    if (lua_type(L, index) != LUA_TTABLE)
-        return false;
     return T::lua_is(L, index);
 }
 

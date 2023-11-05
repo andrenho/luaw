@@ -131,13 +131,16 @@ template <typename T> T luaw_to(lua_State* L, int index, T const& default_)
 template <typename T> T luaw_to(lua_State* L, int index)
 {
     if (!luaw_is<T>(L, index)) {
-        char buf[512];
-        int status;
-        abi::__cxa_demangle(typeid(T).name(), buf, nullptr, &status);
-
         std::string cpp_type = typeid(T).name();
+
+        int status = -4;
+        std::unique_ptr<char, void(*)(void*)> res {
+                abi::__cxa_demangle(cpp_type.c_str(), NULL, NULL, &status),
+                std::free
+        };
+
         if (status == 0)
-            cpp_type = buf;
+            cpp_type = res.get();
 
         luaL_error(L, "Type unexpected (expected C++ type `%s`, actual lua type is `%s` (%s))",
                    cpp_type.c_str(), lua_typename(L, lua_type(L, index)), luaw_dump(L, index, false).c_str());

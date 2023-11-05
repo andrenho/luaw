@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <tuple>
 
+#include <cxxabi.h>
+
 //
 // CONCEPTS
 //
@@ -128,9 +130,18 @@ template <typename T> T luaw_to(lua_State* L, int index, T const& default_)
 
 template <typename T> T luaw_to(lua_State* L, int index)
 {
-    if (!luaw_is<T>(L, index))
-        luaL_error(L, "Type unexpected (expected C++ type `%s` (mangled), actual lua type is `%s`)",
-                   typeid(T).name(), lua_typename(L, lua_type(L, index)));
+    if (!luaw_is<T>(L, index)) {
+        char buf[512];
+        int status;
+        abi::__cxa_demangle(typeid(T).name(), buf, nullptr, &status);
+
+        std::string cpp_type = typeid(T).name();
+        if (status == 0)
+            cpp_type = buf;
+
+        luaL_error(L, "Type unexpected (expected C++ type `%s`, actual lua type is `%s` (%s))",
+                   cpp_type.c_str(), lua_typename(L, lua_type(L, index)), luaw_dump(L, index, false));
+    }
     return luaw_to_<T>(L, index);
 }
 

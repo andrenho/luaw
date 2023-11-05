@@ -140,7 +140,7 @@ template <typename T> T luaw_to(lua_State* L, int index)
             cpp_type = buf;
 
         luaL_error(L, "Type unexpected (expected C++ type `%s`, actual lua type is `%s` (%s))",
-                   cpp_type.c_str(), lua_typename(L, lua_type(L, index)), luaw_dump(L, index, false));
+                   cpp_type.c_str(), lua_typename(L, lua_type(L, index)), luaw_dump(L, index, false).c_str());
     }
     return luaw_to_<T>(L, index);
 }

@@ -1,6 +1,7 @@
 #ifndef LUA_INL_
 #define LUA_INL_
 
+#include <memory>
 #include <optional>
 #include <map>
 #include <unordered_map>

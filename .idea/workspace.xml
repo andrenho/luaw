@@ -41,6 +41,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file:///Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/cxxabi.h" root0="SKIP_INSPECTION" />
+  </component>
   <component name="MakefileLocalSettings">
     <option name="availableProjects">
       <map>
@@ -112,6 +115,11 @@
     </key>
   </component>
   <component name="RunManager" selected="Makefile Application.check-jit">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="luaw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -210,15 +218,9 @@
       <workItem from="1698698284652" duration="1801000" />
       <workItem from="1698795830982" duration="2043000" />
       <workItem from="1698948644704" duration="13000" />
-      <workItem from="1699211569712" duration="767000" />
-    </task>
-    <task id="LOCAL-00014" summary=".">
-      <option name="closed" value="true" />
-      <created>1697896971512</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1697896971512</updated>
+      <workItem from="1699211569712" duration="2031000" />
+      <workItem from="1699291011775" duration="600000" />
+      <workItem from="1701001780070" duration="104000" />
     </task>
     <task id="LOCAL-00015" summary=".">
       <option name="closed" value="true" />
@@ -604,7 +606,15 @@
       <option name="project" value="LOCAL" />
       <updated>1699212003003</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary=".">
+      <option name="closed" value="true" />
+      <created>1699212347873</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1699212347873</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

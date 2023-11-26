@@ -276,10 +276,12 @@ template <Optional T> int luaw_push(lua_State* L, T const& t) {
     return 1;
 }
 template <Optional T> bool luaw_is(lua_State* L, int index) {
+    if (index > lua_gettop(L))
+        return true;
     return lua_isnil(L, index) || luaw_is<typename T::value_type>(L, index);
 }
 template <Optional T> T luaw_to_(lua_State* L, int index) {
-    if (lua_isnil(L, index))
+    if (index > lua_gettop(L) || lua_isnil(L, index))
         return T {};
     else
         return luaw_to<typename T::value_type>(L, index);

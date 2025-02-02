@@ -16,7 +16,7 @@ or this:
 
 ```c++
 luaw_do(L, "function concat(a, b) return a .. b end");
-string result = luaw_call_global<string>(L, "concat", "hello", 42);  // result: "hello42":w
+string result = luaw_call_global<string>(L, "concat", "hello", 42);  // result: "hello42"
 ```
 
 Supports [Lua 5.4](https://www.lua.org/) and [LuaJIT](https://luajit.org/). One static library
